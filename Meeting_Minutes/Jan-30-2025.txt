@@ -1,0 +1,16 @@
+Minutes
+	Talked about current data gathering methods and what categories we might be lacking in
+	Decided that we are lacking a bit in vocabulary and behavior
+	Brancen has a program running that generates vocab of a second grader
+	Kaytlin is going to focus on finding sources that have to do with behavior
+	Nathan is working on prompt engineering to have the AI act like a second grader
+	Nathan requested that we each individually read, or at least skim, the academic paper "Simulating Classroom Education with LLM-Empowered Agents"
+	Discussed current coding abilities of team members
+	Discussed recording of minutes, and the fact that all virtual meetings will be recorded
+
+Assignment
+	Brancen work on vocabulary
+	Kaytlin work on behavior
+	Nathan work on promptin
+	Everyone look for more sources
+	Everyone read the research paper
