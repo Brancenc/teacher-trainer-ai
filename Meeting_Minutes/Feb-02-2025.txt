@@ -1,0 +1,14 @@
+Tasks to be completed
+  new github - Brancen
+  new discord - Nathan
+  create GitHub accounts - Everyone
+
+Minutes
+  discussed and made changes to the team agreement
+  decided to use discord over teams
+  decided to create a new github repository over forking off of MJs repository
+  discussed questions that can be asked of the client to get further direction on what the client is looking for
+  discussed how we can get the ai to present scenarios, ended up on the idea of trying to essentially create DnD module type documents where the AI then acts as the DM
+
+Next Meeting
+Feb-05-2025 5:00PM - in person - UVU CS 401
