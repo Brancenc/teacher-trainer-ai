@@ -1,0 +1,16 @@
+Minutes
+  Discussed what task management software we were going to use, we settled on Monday.com
+  We set up the Monday team and accounts
+  Discussed starting work on the llm
+  Discussed meeting with the client, what questions we are going to ask
+  Confirmed that everyone has access to the GitHub
+  Discussed tasks to work on before the next meeting, made assignments, and input them into Monday.
+
+
+Tasks
+  Find more data - Everyone
+  Scrape Websites - Eder
+  Begin work on UI - Dallen
+  Begin work on llm - Noah
+  Confirm meeting with client - Kaytlin
+  
