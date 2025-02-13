@@ -1,0 +1,5 @@
+Meeting Minutes
+  Discussed moving from Monday to either Jira or Microsoft Planner
+  Discussed everyone checking in at least once a day on the discord chad, as a sort of team heartbeat
+  Dicsussed some ideas on next steps for developing the chatbot, such as running multiple versions within the same discord chat to see how they interact
+  Reviewed what research data still needs to be uploaded to the github
