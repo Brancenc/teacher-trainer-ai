@@ -1,0 +1,679 @@
+Second grade math
+
+A.	Counting
+1	Hundred chart  
+
+2	Number lines - up to 100 
+
+3	Number lines - up to 1,000 
+ 
+4	Count forward - up to 1,000 
+ 
+B.	Comparing and ordering
+1	Comparing numbers up to 100 
+ 
+2	Comparing numbers up to 1,000 
+ 
+3	Put numbers up to 100 in order 
+ 
+4	Put numbers up to 1,000 in order 
+ 
+5	Greatest and least - word problems - up to 100 
+ 
+6	Greatest and least - word problems - up to 1,000 
+ 
+C.	Skip-counting and number patterns
+1	Skip-count by twos 
+ 
+2	Skip-count by fives 
+ 
+3	Skip-count by tens 
+ 
+4	Skip-count by fives and tens 
+ 
+5	Skip-count by twos, fives, and tens 
+ 
+6	Skip-counting stories 
+ 
+7	Skip-counting sequences 
+ 
+8	Count forward and backward by fives and tens 
+ 
+9	Count forward and backward by twos, fives, and tens 
+ 
+10	Skip-counting puzzles 
+ 
+11	Count forward by tens - up to 1,000 
+ 
+12	Count forward by fives, tens, and hundreds 
+ 
+13	Count forward and backward by fives, tens, and hundreds 
+ 
+14	Count forward and backward by twos, fives, tens, and hundreds 
+ 
+D.	Names of numbers
+1	Spell word names for numbers up to 20 
+ 
+2	Writing numbers up to 100 in words - convert words to digits 
+ 
+3	Writing numbers up to 100 in words - convert digits to words 
+ 
+4	Writing numbers up to 1,000 in words - convert words to digits 
+ 
+5	Writing numbers up to 1,000 in words - convert digits to words 
+ 
+6	Writing numbers up to 1,000 in words 
+ 
+7	Roman numerals I, V, X 
+ 
+E.	Even and odd
+1	Even or odd number of shapes - up to 20 
+ 
+2	Identify even and odd numbers - up to 20 
+ 
+3	Addition sentences for even and odd numbers 
+ 
+4	Even or odd numbers on number lines 
+ 
+5	Identify even and odd numbers - up to 100 
+ 
+6	Select even and odd numbers - up to 100 
+ 
+7	Which even or odd number comes before or after? 
+F.	Addition strategies: one digit
+1	Add doubles using models 
+ 
+2	Add doubles 
+ 
+3	Add doubles - complete the sentence 
+ 
+4	Add near doubles 
+ 
+5	Addition sentences using number lines - sums to 20 
+ 
+6	Add by counting on - sums to 20 
+ 
+7	Make ten to add 
+ 
+8	Add zero 
+ 
+G.	Addition: one digit
+1	Add one-digit numbers - sums to 10 
+ 
+2	Add one-digit numbers - sums to 20 
+ 
+3	Sort addition facts - sums to 20 
+ 
+4	Addition word problems - sums to 20 
+ 
+5	Addition sentences for word problems - sums to 20 
+ 
+6	Complete the addition sentence - sums to 20 
+ 
+7	Balance addition equations - sums to 20 
+ 
+8	Which addition sentence is true? - sums to 20 
+ 
+9	Add three one-digit numbers 
+ 
+10	Addition word problems - three one-digit numbers 
+ 
+11	Add four or more one-digit numbers 
+ 
+12	Addition word problems - four or more one-digit numbers 
+ 
+H.	Subtraction strategies: one digit
+1	Subtract doubles 
+ 
+2	Subtraction sentences using number lines - up to 20 
+ 
+3	Subtract by counting back - up to 20 
+ 
+4	Use ten to subtract 
+ 
+5	Subtract by counting on - up to 20 
+ 
+6	Count on and use ten to subtract - up to 20 
+ 
+7	Subtract zero or all 
+ 
+I.	Subtraction: one digit
+1	Subtract one-digit numbers - up to 10 
+ 
+2	Subtract a one-digit number from a two-digit number up to 20 
+ 
+3	Subtraction word problems - up to 20 
+ 
+4	Subtraction sentences for word problems - up to 20 
+ 
+5	Complete the subtraction sentence - up to 20 
+ 
+6	Balance subtraction equations - up to 20 
+ 
+7	Which subtraction sentence is true? - up to 20 
+ 
+J.	Mixed operations: one digit
+1	Addition and subtraction sentences using number lines - up to 20 
+ 
+2	Addition and subtraction - up to 20 
+ 
+3	Ways to make a number using addition and subtraction - up to 20 
+ 
+4	Balance addition and subtraction equations - up to 20 
+ 
+5	Which addition or subtraction sentence is true? - up to 20 
+ 
+6	Write the addition or subtraction rule for an input/output table - up to 20 
+ 
+K.	Mixed operations word problems: one digit
+1	Comparison word problems - up to 20 
+ 
+2	Use models to solve addition and subtraction word problems - up to 20 
+ 
+3	Addition and subtraction word problems - up to 20 
+ 
+4	Match word problems to addition and subtraction sentences - up to 20 
+ 
+5	Two-step addition and subtraction word problems - up to 20 
+ 
+6	Solve word problems using guess-and-check - up to 20 
+ 
+L.	Place value
+1	Place value models - tens and ones 
+ 
+2	Place value models - up to hundreds 
+ 
+3	Place value models - up to thousands 
+ 
+4	Identify a digit up to the hundreds place 
+ 
+5	Value of a digit - tens and ones 
+ 
+6	Value of a digit - up to hundreds 
+ 
+7	Value of a digit - up to thousands 
+ 
+8	Convert to/from a number - tens and ones 
+ 
+9	Regroup tens and ones - ways to make a number 
+ 
+10	Regroup tens and ones 
+ 
+11	Convert to/from a number - up to hundreds 
+ 
+12	Convert between place values - ones and hundreds 
+ 
+13	Convert between place values - ones, tens, and hundreds 
+ 
+14	Convert from expanded form - up to hundreds 
+ 
+15	Convert between standard and expanded form 
+ 
+•	New! Regroup hundreds, tens, and ones - ways to make a number 
+16	Guess the number 
+ 
+M.	Addition strategies: two digits
+1	Break apart a one-digit number to add 
+ 
+2	Use models to add a two-digit and a one-digit number - without regrouping 
+ 
+3	Use models to add a two-digit and a one-digit number - with regrouping 
+ 
+4	Use number lines to add two-digit numbers 
+ 
+5	Break apart a two-digit number to add - sums to 100 
+ 
+6	Use compensation to add on a number line - up to two digits 
+ 
+7	Use compensation to add - up to two digits 
+ 
+8	Use models to add two-digit numbers - without regrouping 
+ 
+9	Use models to add two-digit numbers - with regrouping 
+ 
+10	Use place value to add two-digit numbers - without regrouping 
+ 
+11	Use place value to add two-digit numbers - with regrouping 
+ 
+ 
+N.	Addition: two digits
+1	Add a two-digit and a one-digit number - without regrouping 
+ 
+2	Add a two-digit and a one-digit number - with regrouping 
+ 
+3	Add a multiple of 10 to a two-digit number 
+ 
+4	Add two-digit numbers without regrouping - sums to 100 
+ 
+5	Add two-digit numbers with regrouping - sums to 100 
+ 
+6	Add two-digit numbers - sums to 100 
+ 
+7	Add two-digit numbers vertically - sums to 100 
+ 
+8	Addition word problems - up to two digits 
+ 
+9	Ways to make a number using addition 
+ 
+10	Complete the addition sentence - up to two digits 
+ 
+11	Write the addition sentence - up to two digits 
+ 
+12	Balance addition equations - up to two digits 
+ 
+13	Add two-digit numbers - sums to 200 
+ 
+14	Add two-digit numbers vertically - sums to 200 
+ 
+15	Add three numbers up to two digits each 
+ 
+16	Addition word problems - three numbers up to two digits each 
+ 
+17	Add four numbers up to two digits each 
+ 
+18	Add three or four numbers vertically - up to two digits each 
+ 
+19	Addition word problems - four numbers up to two digits each 
+ 
+O.	Subtraction strategies: two digits
+1	Break apart a one-digit number to subtract 
+ 
+2	Use models to subtract a one-digit number from a two-digit number - without regrouping 
+ 
+3	Use models to subtract a one-digit number from a two-digit number - with regrouping 
+ 
+4	Use number lines to subtract two-digit numbers 
+ 
+5	Break apart a two-digit number to subtract 
+ 
+6	Use compensation to subtract on a number line - up to two digits 
+ 
+7	Use compensation to subtract - up to two digits 
+ 
+8	Count on to subtract two-digit numbers 
+ 
+9	Use models to subtract two-digit numbers - without regrouping 
+ 
+10	Use models to subtract two-digit numbers - with regrouping 
+ 
+11	Use place value to subtract two-digit numbers - without regrouping 
+ 
+12	Use place value to subtract two-digit numbers - with regrouping 
+ 
+P.	Subtraction: two digits
+1	Subtract a one-digit number from a two-digit number - without regrouping 
+ 
+2	Subtract a one-digit number from a two-digit number - with regrouping 
+ 
+3	Subtract a one-digit number from a two-digit number 
+ 
+4	Subtract a multiple of 10 from a two-digit number 
+ 
+5	Subtract two-digit numbers - without regrouping 
+ 
+6	Subtract two-digit numbers - with regrouping 
+ 
+7	Subtract two-digit numbers 
+ 
+8	Subtract two-digit numbers vertically 
+ 
+9	Ways to make a number using subtraction 
+ 
+10	Subtraction word problems - up to two digits 
+ 
+11	Complete the subtraction sentence - up to two digits 
+ 
+12	Write the subtraction sentence - up to two digits 
+ 
+13	Balance subtraction equations - up to two digits 
+ 
+Q.	Mixed operations: two digits
+1	Add and subtract numbers - up to 100 
+ 
+2	Add and subtract with two-digit numbers vertically 
+ 
+3	Which sign (+ or -) makes the number sentence true? - up to 100 
+ 
+4	Ways to make a number using addition and subtraction - up to 100 
+ 
+5	Relate addition and subtraction sentences - up to two digits 
+ 
+6	Complete the addition or subtraction sentence - up to 100 
+ 
+7	Balance addition and subtraction equations - up to 100 
+ 
+8	Which addition or subtraction equation is true? - up to 100 
+9	Write addition and subtraction sentences 
+ 
+10	Inequalities with addition and subtraction - up to 100 
+ 
+R.	Mixed operations word problems: two digits
+•	New! Use models to solve addition and subtraction word problems - up to 100 
+ 
+1	Addition and subtraction word problems - up to 100 
+ 
+•	New! Match addition and subtraction word problems to equations - up to 100 
+2	Two-step addition and subtraction word problems - up to 100 
+ 
+S.	Addition strategies: three digits
+1	Use number lines to add three-digit numbers 
+ 
+2	Break apart a three-digit number to add 
+ 
+3	Use compensation to add - up to three digits 
+ 
+4	Use models to add three-digit numbers - without regrouping 
+ 
+5	Use models to add three-digit numbers - with regrouping 
+ 
+6	Use expanded form to add three-digit numbers - without regrouping 
+ 
+7	Use expanded form to add three-digit numbers - with regrouping 
+ 
+•	New! Use expanded form to add three-digit numbers 
+ 
+T.	Addition: three digits
+•	New! Add 10 or 100 to a three-digit number 
+1	Add a multiple of 100 to a three-digit number 
+ 
+2	Add a multiple of 10 or 100 to a three-digit number 
+ 
+•	New! Addition with three-digit numbers - without regrouping 
+•	New! Addition with three-digit numbers - with regrouping 
+ 
+3	Addition with three-digit numbers 
+ 
+4	Add three-digit numbers vertically 
+ 
+5	Addition word problems - up to three digits 
+ 
+6	Complete the addition sentence - up to three digits 
+ 
+7	Write the addition sentence - up to three digits 
+ 
+8	Addition up to three digits - fill in the missing digits 
+ 
+9	Balance addition equations - up to three digits 
+ 
+U.	Subtraction strategies: three digits
+1	Use number lines to subtract three-digit numbers 
+2	Break apart a three-digit number to subtract 
+ 
+3	Use compensation to subtract - up to three digits 
+ 
+4	Use models to subtract from three-digit numbers - without regrouping 
+ 
+5	Use models to subtract from three-digit numbers - with regrouping 
+ 
+V.	Subtraction: three digits
+•	New! Subtract 10 or 100 from a three-digit number 
+1	Subtract a multiple of 100 from a three-digit number 
+ 
+2	Subtract a multiple of 10 or 100 from a three-digit number 
+ 
+3	Subtract across zeros 
+ 
+•	New! Subtract from three-digit numbers - without regrouping 
+ 
+•	New! Subtract from three-digit numbers - with regrouping 
+ 
+4	Subtract from three-digit numbers 
+ 
+5	Subtract from three-digit numbers vertically 
+ 
+6	Subtraction word problems - up to three digits 
+ 
+7	Complete the subtraction sentence - up to three digits 
+ 
+8	Write the subtraction sentence - up to three digits 
+ 
+9	Balance subtraction equations - up to three digits 
+ 
+ 
+W.	Mixed operations: three digits
+1	Break apart a three-digit number to add or subtract 
+ 
+•	New! Use compensation to add or subtract - up to 1,000 
+ 
+2	Add and subtract numbers up to 1,000 
+ 
+3	Add and subtract with three-digit numbers vertically 
+ 
+4	Addition and subtraction word problems - up to 1,000 
+ 
+5	Solve inequalities using addition and subtraction shortcuts 
+ 
+X.	Repeated addition
+1	Count equal groups 
+ 
+2	Identify repeated addition for equal groups - sums to 25 
+ 
+3	Write addition sentences for equal groups - sums to 25 
+ 
+4	Identify repeated addition for arrays - sums to 25 
+ 
+5	Write addition sentences for arrays - sums to 25 
+ 
+6	Solve word problems using repeated addition - sums to 25 
+ 
+Y.	Properties
+1	Add in any order 
+ 
+2	Related addition facts 
+ 
+3	Related subtraction facts 
+ 
+4	Fact families 
+ 
+5	Addition and subtraction terms 
+ 
+Z.	Estimation and rounding
+1	Estimate to the nearest ten 
+ 
+2	Round to the nearest ten 
+ 
+3	Round to the nearest ten or hundred 
+ 
+4	Estimate sums 
+ 
+5	Estimate differences 
+ 
+AA.	Money up to $1
+1	Names and values of common coins 
+ 
+2	Names and values of all coins 
+ 
+3	Count money - groups of like coins 
+ 
+4	Count money - pennies, nickels, and dimes only 
+ 
+5	Count money up to $1 
+ 
+6	Equivalent amounts of money up to $1 
+ 
+7	Exchanging money - with pictures 
+ 
+8	Exchanging money 
+ 
+9	Exchanging money II 
+ 
+10	Least number of coins 
+ 
+11	Do you have enough money? - up to $1 
+ 
+12	How much more to make a dollar? 
+ 
+13	Correct amount of change 
+ 
+14	Making change 
+ 
+BB.	Add and subtract money up to $1
+1	Add money up to $1 
+ 
+2	Add money up to $1: word problems 
+ 
+3	Subtract money up to $1 
+ 
+4	Subtract money up to $1: word problems 
+ 
+5	Add and subtract money up to $1 
+ 
+6	Add and subtract money up to $1: word problems 
+ 
+CC.	Money up to $100
+1	Count money up to $5 
+ 
+2	Do you have enough money? - up to $5 
+ 
+3	Which picture shows more? - up to $5 
+ 
+4	Count money up to $100 - bills 
+ 
+5	Count money up to $100 
+ 
+DD.	Time
+1	Match digital clocks and times 
+ 
+2	Match analog clocks and times 
+ 
+3	Match analog and digital clocks 
+ 
+4	Read clocks and write times: hour and half hour 
+ 
+5	Read clocks and write times 
+ 
+6	A.M. or P.M. 
+ 
+7	Compare clocks 
+ 
+8	Number of days in each month 
+ 
+9	Relate time units 
+ 
+EE.	Calendars
+1	Months of the year 
+ 
+2	Read a calendar I 
+ 
+3	Read a calendar II 
+ 
+FF.	Data and graphs
+1	Which tally chart is correct? 
+ 
+2	Interpret tally charts 
+ 
+3	Create picture graphs 
+ 
+4	Interpret picture graphs 
+ 
+5	Create bar graphs 
+ 
+6	Interpret bar graphs I 
+ 
+7	Interpret bar graphs II 
+ 
+8	Which bar graph is correct? 
+ 
+9	Create line plots 
+ 
+10	Interpret line plots 
+ 
+GG.	Customary units of length
+1	Measure length with inch cubes 
+ 
+2	Measure using an inch ruler 
+ 
+3	Measure to compare length in inches 
+ 
+•	New! Measure with different customary units: inches, feet, and yards 
+4	Which customary unit of length is appropriate: inches or feet? 
+ 
+5	Which customary unit of length is appropriate: inches, feet, or yards? 
+ 
+•	New! Choose the best measuring tool: customary units of length 
+6	Compare lengths: customary units 
+ 
+7	Customary units of length: word problems 
+ 
+HH.	Metric units of length
+1	Measure using a centimeter ruler 
+ 
+2	Measure to compare length in centimeters 
+ 
+•	New! Measure with different metric units 
+3	Which metric unit of length is appropriate? 
+ 
+•	New! Choose the best measuring tool: metric units of length 
+4	Compare lengths: metric units 
+ 
+5	Metric units of length: word problems 
+ 
+II.	Two-dimensional shapes
+1	Count sides and vertices 
+ 
+2	Identify quadrilaterals 
+ 
+3	Identify pentagons 
+ 
+4	Name polygons: up to 6 sides 
+ 
+5	Classify polygons: up to 6 sides 
+ 
+6	Name polygons: up to 12 sides 
+ 
+7	Classify polygons: up to 12 sides 
+ 
+8	Sort two-dimensional shapes 
+ 
+9	Draw polygons 
+ 
+10	Compose two-dimensional shapes 
+ 
+JJ.	Three-dimensional shapes
+1	Cubes 
+ 
+2	Select three-dimensional shapes 
+ 
+3	Name the three-dimensional shape 
+ 
+4	Count vertices, edges, and faces 
+ 
+5	Compare vertices, edges, and faces 
+ 
+6	Identify faces of three-dimensional shapes 
+7	Identify shapes traced from solids 
+ 
+8	Three-dimensional shapes in the real world I 
+ 
+9	Three-dimensional shapes in the real world II 
+ 
+KK.	Area and tiling
+1	Tile a rectangle with squares 
+ 
+2	Count the number of squares in a rectangle 
+ 
+3	Area 
+ 
+LL.	Fractions
+1	Equal parts 
+ 
+2	Identify halves 
+ 
+3	Identify thirds 
+ 
+4	Identify fourths 
+ 
+5	Identify halves, thirds, and fourths 
+ 
+6	Make halves 
+ 
+7	Make thirds 
+ 
+8	Make fourths 
+ 
+9	Make halves, thirds, and fourths 
+ 
+10	Make halves, thirds, and fourths in different ways 
+ 
+11	Identify a half, a third, and a fourth 
+ 

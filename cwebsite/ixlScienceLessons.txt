@@ -1,0 +1,105 @@
+Second grade science
+A.	Materials
+1	Identify properties of an object
+2	Compare properties of objects
+3	Compare properties of materials
+4	Identify materials in objects
+5	Identify multiple materials in objects
+B.	States of matter
+1	Classify matter as solid or liquid
+2	Identify solids and liquids
+3	Classify matter as solid, liquid, or gas
+4	Identify solids, liquids, and gases
+5	Sort solids, liquids, and gases
+C.	Changes of state
+1	Changes caused by heating and cooling
+2	Change-of-state diagrams: solid and liquid
+3	Change-of-state diagrams: liquid and gas
+4	Change-of-state diagrams: solid, liquid, and gas
+5	Heating, cooling, and changes of state: melting and freezing
+6	Heating, cooling, and changes of state: evaporating and condensing
+D.	Heat
+1	Predict heat flow
+E.	Physical and chemical change
+1	Identify physical and chemical changes
+F.	Mixtures
+1	Identify mixtures
+G.	Force and motion
+1	Identify pushes and pulls
+2	How do mass and force affect motion?
+3	Compare the speeds of moving objects
+H.	Magnets
+•	New! What objects can a magnet pull?
+•	New! How do magnets attract and repel each other?
+1	Identify magnets that attract or repel
+2	Label magnets that attract or repel
+ 
+I.	Classification
+1	Identify living and nonliving things
+2	Identify plants and animals
+3	Identify mammals, birds, fish, reptiles, and amphibians
+4	Identify animals with and without backbones
+J.	Animals
+1	Read animal life cycle diagrams
+2	Construct animal life cycle diagrams
+3	Compare different animals' life cycles
+4	Body parts and their functions
+K.	Plants
+1	Classify fruits and vegetables as plant parts
+2	Identify plant parts and their functions
+3	Read and construct flowering plant life cycle diagrams
+4	How do flowering plants make new plants?
+L.	Traits
+1	Observe traits
+2	Observe and compare traits
+3	Introduction to adaptations
+M.	Ecosystems
+1	How do living things change their environments to meet their needs?
+2	How do gray squirrels change the forest to meet their needs?
+3	Where do dromedary camels and polar bears live?
+4	Where do giraffes and beavers live?
+5	Where do whale sharks and tree frogs live?
+6	Where do turtle grass and giant sequoias live?
+7	Where do water lilies and saguaros live?
+8	Where do bearberries and powdery strap air plants live?
+9	Pollinator: ruby-throated hummingbird
+10	Pollinator: Indian flying fox
+11	Pollinator: painted lady butterfly
+12	Seed disperser: Eurasian red squirrel
+13	Seed disperser: African elephant
+14	Seed disperser: common ostrich
+15	Benefits of group behavior: North American caribou
+16	Benefits of group behavior: African wild dogs
+17	Benefits of group behavior: leaf-cutter ants
+ 
+N.	Rocks and minerals
+1	Classify rocks and minerals by color and shape
+O.	Weather
+1	Describe the weather
+2	Types of precipitation
+3	Severe weather: blizzards
+4	Severe weather: tornadoes
+5	Severe weather: hurricanes
+6	Read a thermometer
+7	Compare temperatures on thermometers
+P.	Earth's features
+1	Bodies of water
+2	Water on Earth
+3	Natural resources
+4	Identify Earth’s land features
+Q.	Earth events
+1	Classify changes to Earth's surface
+2	Find evidence of changes to Earth's surface
+3	Changes to Earth's surface: earthquakes
+4	Changes to Earth's surface: volcanic eruptions
+5	Changes to Earth's surface: erosion
+R.	Units and measurement
+1	Choose units of time
+2	Choose customary units of distance
+3	Choose metric units of distance
+4	Abbreviate time and length units
+5	Abbreviate mass and volume units
+S.	Human impacts
+•	New! Reduce, reuse, recycle
+T.	Engineering practices
+•	New! Evaluate multiple design solutions to prevent erosion
