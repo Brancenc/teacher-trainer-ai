@@ -29,7 +29,7 @@ def GetEvaluation( session):
 
 
 if 'page' not in st.session_state:
-    st.session_state['page'] = 'home'#this is the default page
+    st.session_state['page'] = defaultPage#this is the default page
 
 def StartPage():
 	st.title("AI 2nd Grader")
