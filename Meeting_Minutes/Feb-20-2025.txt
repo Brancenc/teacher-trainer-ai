@@ -1,0 +1,15 @@
+Minutes
+  Discussed what was taught in class on the 19th.
+  Discussed what was going to be taught in class on the 24th.
+  The Jira project has been created and members have been invited.
+  We have reached out to the subject matter expert involved but have not heard back.
+  Brainstormed what things we can discuss and ask the subject expert about.
+    What scenarios and subjects we should start with.
+    How long should a scenario last.
+  The website has been made with steamlit. With the option to select scenarios and get an evaluation after the chat.
+  Discussed what scenarios to start implementing.
+  Discussed hosting options for the website
+  The program has finished to vectorize data files passed to it.
+    Discussed how it works. Current output is a vector embedding.
+  Discussed how we want to upload files to the server.
+    

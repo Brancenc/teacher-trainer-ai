@@ -1,0 +1,11 @@
+Minutes
+  Started with demonstrating Jira to the team
+  Discussed what tasks are on the board currently
+  A reminder was given to add the instructors to the jira
+  Kaytlin outlined how she is going to go about doing reminders and followups for assigned tasks
+  Discussed package management on MJs server - it should now be set up and ready to use
+  Brancen informed the team that he had obtained a domain to use for presenting prototypes and demos
+  Discussed the due date for the next bit of the project, individual roles, and the presentation date
+
+Assignments
+  See Jira
