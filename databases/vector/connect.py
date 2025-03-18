@@ -1,8 +1,9 @@
 import sqlite3
 import numpy as np
 import json
-import hashlib
 from sentence_transformers import SentenceTransformer
+import os
+import time
 
 
 ''' 
@@ -23,6 +24,8 @@ CREATE TABLE embeddings (
 '''
 
 db_path = "/home/team2/data/team2_data/knowledge_base/vector_db.sqlite"
+# CACHE_FILE = "/home/team2/databases/vector/cache.json" # REPLACE WITH CACHE FILE
+
 
 class Connect:
     def __init__(self, path = db_path):
@@ -32,6 +35,12 @@ class Connect:
         self.cursor = None  # Values of these will change in connect function
         self.cache = {}
         self._connect()
+        
+        # Json Way
+        # self._load_cache()
+
+        # Cache table way
+        # self._create_caching_tables()
 
 
     def _connect(self) -> None:
@@ -58,31 +67,90 @@ class Connect:
             self.conn.close()
             print("Database connection closed.")
 
-    def _setup_cache(self):
-        pass 
-        # TODO Create a different table in DB, create new DB, or create an import file
+    # First way using json file
+    # def _load_cache(self):
+    #     if os.path.exists(CACHE_FILE):
+    #         try:
+    #             with open(CACHE_FILE, "r") as f:
+    #                 self.cache = json.load(f)
+    #         except (json.JSONDecodeError, OSError):
+    #             print("Cache file is empty or corrupt")
+    #             self.cache = {}
+    #     else:
+    #         self.cache = {}
 
-    def _hash_query(self, query: str, category: str = None) -> str:
-        '''Generates the hash of a query'''
-        query_string = f"{query}_{category if category else 'ALL'}"
-        return hashlib.sha256(query_string.encode()).hexdigest()
-        # Not using normal hash because it will produce different output on queries
-        # when you restart the script
-        # Encode used to convert string to bytes for sha256 input and hexdigest turns 
-        # bytes into hex string
+    # def _save_cache(self):
+    #     with open(CACHE_FILE, "w") as f:
+    #         json.dump(self.cache, f, indent = 4)
 
-    # def _get_cached_result(self, query: str, category: str = None) -> str:
-    #     pass
 
-    # def _store_cached_result(self, query: str, category: str, results: str) -> None:
-    #     pass
+    # Second way using cache table
+    def _create_caching_tables(self):
+        """Creates a persistent cache table if it doesn't exist and created corresponding performance tracking table"""
+        if self._verify_connection():
+            self.cursor.execute("""
+                CREATE TABLE IF NOT EXISTS cache (
+                    query TEXT PRIMARY KEY,
+                    category TEXT,
+                    results TEXT,
+                    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
 
+            self.cursor.execute("""
+                CREATE TABLE IF NOT EXISTS query_logs (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    query TEXT,
+                    category TEXT,
+                    execution_time REAL,
+                    source TEXT,
+                    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+            self.conn.commit()
+
+    def _log_query_performance(self, query, category, execution_time, source):
+        self.cursor.execute(
+            "INSERT INTO query_log (query, category, execution_time, source) VALUES (?, ?, ?, ?)",
+            (query, category, execution_time, source)
+        )
+        self.conn.commit()
+
+    def _get_cached_result(self, query, category):
+        """Checks if a query result exists in cache."""
+        self.cursor.execute("SELECT results FROM cache WHERE query = ? AND category = ?", (query, category))
+        cached_result = self.cursor.fetchone()
+        return json.loads(cached_result[0]) if cached_result else None
+    
+    def _cache_result(self, query, category, results):
+        """Stores search results in cache."""
+        results_json = json.dumps(results)
+        self.cursor.execute("REPLACE INTO cache (query, category, results) VALUES (?, ?, ?)", (query, category, results_json))
+        self.conn.commit()
 
     def search(self, query, top_n = 3, category = None) -> list[dict]:
         '''Searches the vector database with a certain query'''
-        if not self.verify_connection():
+        if not self._verify_connection():
             print("No database connection")
             return []
+        
+        start_time = time.time()
+        
+        # Json Way
+        # cache_key = f"{query}::{category}"
+        # if cache_key in self.cache:
+        #     print("Returning cached results")
+        #     return self.cache[cache_key]
+
+        # Cache Table way
+        cached_results = self._get_cached_result(query, category)
+        if cached_results:
+            execution_time = time.time() - start_time
+            self._log_query_performance(query, category, execution_time, "cache")
+            print("Returning cached results.")
+            return cached_results
+        
+
         
         # Convert query to embedding
         query_embedding = self.model.encode([query])[0] # [0] is used since we only passed one query, the output will only be one vector
@@ -124,15 +192,24 @@ class Connect:
                 "similarity": float(similarity)
             })
         
+        # JSON way
+        # self.cache[cache_key] = formatted_results
+        # self._save_cache()
+
+        # Cache table way
+        self._cache_result(query, category, formatted_results)
+        execution_time = time.time() - start_time
+        self._log_query_performance(query, category, execution_time, "database")
+        print("Not in cache")
         return formatted_results
         
 
 def main():
     connection = Connect()
     results = connection.search("Behavior of second grader")
-    for v in results:
-        print(v["text"])
-        print('\n')
+    # print(results)
+    results2 = connection.search("Behavior of second grader")
+    # print(results2)
 main()
 
     

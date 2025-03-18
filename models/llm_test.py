@@ -128,16 +128,58 @@ def evaluate_response(user_response, knowledge):
         print(f"Error evaluating response: {e}")
         return "Unable to evaluate response. Please try again."
 
-def get_student_response(grade_level, subject, challenge_type, teacher_message):
-    """Generate a student's response to a teacher's message."""
+def get_student_response(grade_level, subject, challenge_type, teacher_message, conversation_history=None):
+    """
+    Generate a student's response to a teacher's message with conversation history.
+    
+    Args:
+        grade_level: The grade level of the student
+        subject: The subject being taught
+        challenge_type: The type of challenge the student is facing
+        teacher_message: The most recent message from the teacher
+        conversation_history: A list of previous exchanges in the format 
+                             [{"role": "student/teacher", "content": "message"}]
+    
+    Returns:
+        A response from the student character
+    """
     try:
-        # Create a prompt for student response
+        # Format conversation history if provided
+        history_text = ""
+        scenario = ""
+        
+        if conversation_history and len(conversation_history) > 0:
+            # Extract the scenario from the first message if it exists
+            first_msg = conversation_history[0]
+            if first_msg.get("role") == "assistant" and "Classroom Scenario" in first_msg.get("content", ""):
+                scenario_text = first_msg.get("content", "")
+                # Extract just the scenario part
+                if "*You are now" in scenario_text:
+                    scenario = scenario_text.split("*You are now")[0].strip()
+                else:
+                    scenario = scenario_text
+            
+            # Format the rest of the conversation history
+            for msg in conversation_history[1:]:  # Skip the scenario message
+                if msg.get("role") == "user":
+                    history_text += f"Teacher: {msg.get('content', '')}\n"
+                elif msg.get("role") == "assistant":
+                    history_text += f"Student: {msg.get('content', '')}\n"
+        
+        # Create a prompt for student response with history
         context = f"""
         You are a {grade_level} student in a {subject} class with a {challenge_type} challenge.
+        
+        {scenario if scenario else ""}
+        
+        {"Previous conversation:" if history_text else ""}
+        {history_text}
         
         The teacher just said: "{teacher_message}"
         
         Respond AS THE STUDENT would in this scenario, keeping in mind your age and the challenge.
+        Make your responses appropriate for a {grade_level} student's vocabulary and emotional maturity.
+        Show consistency with your previous responses if any.
         DO NOT evaluate the teacher's response. DO NOT give feedback on teaching methods.
         Just respond naturally as a {grade_level} student would.
         """
@@ -173,13 +215,55 @@ def get_knowledge_explorer_response(query):
         print(f"Error retrieving knowledge response: {e}")
         return "I'm having trouble accessing the knowledge base right now. Please try again."
 
-def get_teaching_evaluation(conversation, grade_level, subject, challenge_type):
-    """Evaluate a teacher-student conversation."""
+def get_teaching_evaluation(conversation_text=None, grade_level=None, subject=None, challenge_type=None, conversation_messages=None):
+    """
+    Evaluate a teacher-student conversation.
+    
+    Args:
+        conversation_text: Pre-formatted conversation text (legacy support)
+        grade_level: The grade level of the classroom
+        subject: The subject being taught
+        challenge_type: The challenge type being addressed
+        conversation_messages: List of conversation messages in the format
+                              [{"role": "user/assistant", "content": "message"}]
+    
+    Returns:
+        Tuple of (score, evaluation_text)
+    """
     try:
+        # Extract scenario and format conversation if messages are provided
+        if conversation_messages and len(conversation_messages) > 0:
+            scenario = ""
+            conversation_text = ""
+            
+            # Extract scenario from first message if it exists
+            first_msg = conversation_messages[0]
+            if first_msg.get("role") == "assistant" and "Classroom Scenario" in first_msg.get("content", ""):
+                scenario_text = first_msg.get("content", "")
+                # Extract just the scenario part
+                if "*You are now" in scenario_text:
+                    scenario = scenario_text.split("*You are now")[0].strip()
+                else:
+                    scenario = scenario_text
+                
+                conversation_text = f"Scenario: {scenario}\n\n"
+            
+            # Format the rest of the conversation
+            for i in range(1, len(conversation_messages)):
+                msg = conversation_messages[i]
+                if msg.get("role") == "user":
+                    conversation_text += f"Teacher: {msg.get('content', '')}\n"
+                elif msg.get("role") == "assistant":
+                    conversation_text += f"Student: {msg.get('content', '')}\n"
+        
+        # Fall back to provided conversation text if no messages or formatting failed
+        if not conversation_text:
+            conversation_text = "No conversation to evaluate."
+        
         # Get the challenge type for knowledge retrieval
         knowledge = retrieve_knowledge(challenge_type, top_k=5)
         
-        # Format the conversation for evaluation
+        # Create evaluation prompt
         prompt = f"""
         Evaluate the following teacher-student interaction based on best practices for handling a {challenge_type} situation:
         
@@ -187,7 +271,7 @@ def get_teaching_evaluation(conversation, grade_level, subject, challenge_type):
         Subject: {subject}
         Challenge: {challenge_type}
         
-        {conversation}
+        {conversation_text}
         
         Relevant Research:
         {knowledge}

@@ -182,12 +182,14 @@ def ChatPage():
 			
 			with st.spinner("Generating response..."):
 				try:
+					# Pass the entire conversation history to get_student_response
 					assistant_response = safe_execute(
 						get_student_response,
 						st.session_state["gradeLevel"],
 						st.session_state["subject"],
 						st.session_state["challenge"],
 						prompt,
+						st.session_state["messages"],  # Pass the full conversation history
 						fallback_result="I'm having trouble responding right now."
 					)
 				except Exception as e:
@@ -207,30 +209,24 @@ def ChatPage():
 def EvalPage():
 	st.title("Evaluation")
 	
-	# Format the conversation for evaluation
-	conversation = ""
-	if "messages" in st.session_state and len(st.session_state["messages"]) > 1:
-		messages = st.session_state["messages"]
-		
-		# Skip the initial scenario message
-		first_msg = messages[0]["content"]
-		conversation += f"Scenario: {first_msg.split('*You are now')[0].strip()}\n\n"
-		
-		# Format the rest of the conversation
-		for i in range(1, len(messages)):
-			if messages[i]["role"] == "user":
-				conversation += f"Teacher: {messages[i]['content']}\n"
-			else:
-				conversation += f"Student: {messages[i]['content']}\n"
+	# Check if we have any conversation to evaluate
+	if "messages" not in st.session_state or len(st.session_state["messages"]) < 2:
+		st.warning("You need to have a conversation first before getting an evaluation.")
+		if st.button("Go Back to Conversation"):
+			st.session_state['page'] = 'chat'
+			st.rerun()
+		return
 	
 	with st.spinner("Generating evaluation..."):
 		try:
+			# Pass the conversation messages directly to the evaluation function
 			evaluationScore, evaluationText = safe_execute(
 				get_teaching_evaluation,
-				conversation,
+				None,  # No pre-formatted conversation text
 				st.session_state["gradeLevel"],
 				st.session_state["subject"], 
 				st.session_state["challenge"],
+				st.session_state["messages"],  # Pass the raw messages
 				fallback_result=(0, "Unable to generate evaluation.")
 			)
 		except Exception as e:
@@ -238,22 +234,36 @@ def EvalPage():
 			evaluationScore = 0
 			evaluationText = f"Unable to generate evaluation: {str(e)}"
 	
-	#display evaluation
+	# Display evaluation
 	st.metric("Score", evaluationScore)
 	st.header("AI's evaluation")
 	st.write(evaluationText)
+	
+	# Show a snippet of the conversation that was evaluated
+	with st.expander("Conversation Evaluated"):
+		for i, message in enumerate(st.session_state["messages"]):
+			if i == 0:
+				# Show the scenario differently
+				st.markdown("**Scenario:**")
+				scenario_text = message["content"].split("*You are now")[0] if "*You are now" in message["content"] else message["content"]
+				st.markdown(scenario_text)
+				st.markdown("---")
+			else:
+				# Show the actual conversation
+				role = "👨‍🏫 Teacher" if message["role"] == "user" else "👨‍🎓 Student"
+				st.markdown(f"**{role}**: {message['content']}")
 
 	col1, col2 = st.columns(2)
 	
 	with col1:
 		if st.button("Go Back to Situation Select"):
-			#go back to home page
+			# Go back to home page
 			st.session_state['page'] = 'home'
 			st.rerun()
 	
 	with col2:
 		if st.button("Continue Conversation"):
-			#go back to chat page
+			# Go back to chat page
 			st.session_state['page'] = 'chat'
 			st.rerun()
 
