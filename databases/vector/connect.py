@@ -23,7 +23,7 @@ CREATE TABLE embeddings (
 );
 '''
 
-db_path = "/home/team2/data/team2_data/knowledge_base/vector_db.sqlite"
+db_path = "vector_db.sqlite"
 # CACHE_FILE = "/home/team2/databases/vector/cache.json" # REPLACE WITH CACHE FILE
 
 
