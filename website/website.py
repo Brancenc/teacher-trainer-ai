@@ -1,4 +1,7 @@
 import streamlit as st
+import streamlit_authenticator as stauth
+import yaml
+from yaml.loader import SafeLoader
 import time
 import sys
 import os
@@ -29,12 +32,24 @@ try:
 except Exception as e:
 	st.error(f"Error setting page config: {str(e)}")
 
+#set up login things
+userLogins = None
+with open('UserLogins.yaml') as file:
+	userLogins = yaml.load(file, Loader=SafeLoader)
+
+authenticator = stauth.Authenticate(
+	userLogins['credentials'],
+	userLogins['cookie']['name'],
+	userLogins['cookie']['key'],
+	userLogins['cookie']['expiry_days']
+)
+
 # Add the models directory to the Python path so we can import from it
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # Import with error handling
 try:
-	from models.llm_test import (
+	from models.llm_testMock import (
 		generate_scenario,
 		get_student_response,
 		get_knowledge_explorer_response,
@@ -56,11 +71,76 @@ def safe_execute(func, *args, fallback_result=None, **kwargs):
 
 # Initialize default page
 if 'page' not in st.session_state:
-	st.session_state['page'] = 'home'
+	st.session_state['page'] = 'login'
 
-def StartPage():
+def LoginPage():
 	st.title("AI Classroom Simulator")
 	st.divider()
+
+	#create login widget
+	authenticator.login()
+	if st.session_state.get('authentication_status'):
+		st.session_state['page'] = 'home'
+		st.rerun()
+	elif st.session_state.get('authentication_status') is False:
+		st.error('Username/password is incorrect')
+	elif st.session_state.get('authentication_status') is None:
+		st.warning('Please enter your username and password')
+
+	#create button to got to create an account page
+	if st.button("Create An Account"):
+		#go to login page
+		st.session_state['page'] = 'createAccount'
+		st.rerun()
+	
+def CreateAccountPage():
+	if st.button("Return To Login"):
+		#go to login page
+		st.session_state['page'] = 'login'
+		st.rerun()
+	
+	try:
+		email_of_registered_user, \
+		username_of_registered_user, \
+		name_of_registered_user = authenticator.register_user(
+			fields={'Form name':'Register user',
+			'Email':'Email',
+			'Username':'Username',
+			'Password':'Password',
+			'Repeat password':'Repeat password',
+			'Password hint':'Password hint',
+			'Captcha':'Captcha',
+			'Register':'Register'},
+			password_hint=False,
+			roles=["student","teacher"])
+
+		if email_of_registered_user:
+			st.success('User registered successfully')
+
+			#save new login info
+			with open('UserLogins.yaml','w') as file:
+				yaml.dump(userLogins, file, default_flow_style=False, allow_unicode=True)
+
+			#go to login page
+			st.session_state['page'] = 'login'
+			st.rerun()
+			
+	except Exception as e:
+		st.error(e) 
+
+def StartPage():
+	#handle logging out
+	authenticator.logout()
+	if not st.session_state.get('authentication_status'):
+		st.session_state['page'] = 'login'
+		st.rerun()
+	st.header(f'Welcome *{st.session_state.get("name")}*!')
+
+	st.title("Select Situation")
+	st.divider()
+
+
+	authenticator.login('unrendered')
 
 	selectedGrade = st.selectbox("Grade Level",
 	options=["Kindergarten","Grade 1","Grade 2","Grade 3","Grade 4","Grade 5"],
@@ -270,7 +350,11 @@ def EvalPage():
 # Wrap the main app in a try-except block to catch any errors
 try:
 	# page selector
-	if st.session_state['page'] == 'chat':
+	if st.session_state['page'] == 'login':
+		LoginPage()
+	elif st.session_state['page'] == 'createAccount':
+		CreateAccountPage()
+	elif st.session_state['page'] == 'chat':
 		ChatPage()
 	elif st.session_state['page'] == 'eval':
 		EvalPage()
