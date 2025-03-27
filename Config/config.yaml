@@ -2,7 +2,7 @@ api_key: null
 cookie:
   expiry_days: 30
   key: some_key
-  name: some_cookie_name
+  name: UTTA_Brownie_Note_This_Is_A_Brownie_And_Not_A_Cookie
 credentials:
   usernames:
     brancenc:
