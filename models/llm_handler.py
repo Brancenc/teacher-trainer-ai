@@ -21,8 +21,7 @@ except ImportError:
     model = None
 
 # Database Path
-DB_PATH = 'databases/vector/vector_db.sqlite'
-
+DB_PATH = '/home/team2/databases/vector/vector_dv.sqlite'
 
 # Initialize a simple text generation function instead of using LangChain
 def simple_generate(prompt):
@@ -30,8 +29,12 @@ def simple_generate(prompt):
     try:
         # Import here to avoid PyTorch issues during module loading
         from langchain_ollama import OllamaLLM
-        llm = OllamaLLM(model="llama3")
-        return str(llm.invoke(prompt))
+        try:
+            llm = OllamaLLM(model="llama3")
+            return str(llm.invoke(prompt))
+        except ConnectionRefusedError:
+            print("Connection to Ollama refused. Is the Ollama server running?")
+            return "Unable to connect to LLM server. Please check if Ollama is running."
     except Exception as e:
         print(f"Error generating text: {e}")
         return f"Error generating response: {str(e)}"
@@ -39,6 +42,9 @@ def simple_generate(prompt):
 def connect_db():
     """Connect to the SQLite database."""
     try:
+        if not os.path.exists(DB_PATH):
+            print(f"Database file not found at: {DB_PATH}")
+            return None
         return sqlite3.connect(DB_PATH)
     except Exception as e:
         print(f"Error connecting to database: {e}")

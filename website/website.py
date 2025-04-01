@@ -49,12 +49,16 @@ authenticator = stauth.Authenticate(
     config['cookie']['expiry_days']
 )
 
-# Add the models directory to the Python path so we can import from it
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+# Fix path to ensure models can be imported
+# Get the absolute path of the root directory (parent of website directory)
+root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if root_dir not in sys.path:
+	sys.path.insert(0, root_dir)
+	print(f"Added {root_dir} to Python path")
 
 # Import with error handling
 try:
-	from models.llm_test import (
+	from models.llm_handler import (
 		generate_scenario,
 		get_student_response,
 		get_knowledge_explorer_response,
@@ -62,6 +66,9 @@ try:
 	)
 except Exception as e:
 	st.error(f"Error importing LLM modules: {e}")
+	st.code(f"Python path: {sys.path}")
+	st.code(f"Current directory: {os.getcwd()}")
+	st.code(f"Looking for models in: {os.path.join(root_dir, 'models')}")
 	# Stop the app if imports fail
 	st.stop()
 
