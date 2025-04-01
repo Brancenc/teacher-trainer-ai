@@ -1,10 +1,24 @@
 import streamlit as st
+import streamlit_authenticator as stauth
+from streamlit_authenticator.utilities import *
 import time
 import sys
 import os
 import traceback
 import warnings
 import logging
+import yaml
+from yaml.loader import SafeLoader
+
+# Configure Streamlit page before any other Streamlit commands
+try:
+	st.set_page_config(
+		page_title="Teacher Trainer Simulator",
+		page_icon="icon.png",
+		layout="wide"
+	)
+except Exception as e:
+	st.error(f"Error setting page config: {str(e)}")
 
 # More aggressive warning and error suppression
 warnings.filterwarnings('ignore')
@@ -19,15 +33,21 @@ os.environ['PYTORCH_DISABLE_CUSTOM_CLASS_REGISTRATION'] = '1'
 os.environ['TORCH_USE_RTLD_GLOBAL'] = 'YES'  # Help with some PyTorch dynamic loading issues
 os.environ['STREAMLIT_WATCH_MODULE_SKIP'] = 'torch,transformers,langchain,sentence_transformers,faiss'
 
-# Configure Streamlit page before any other Streamlit commands
+# Try to load authentication configuration
 try:
-	st.set_page_config(
-		page_title="Teacher Trainer Simulator",
-		page_icon="icon.png",
-		layout="wide"
-	)
-except Exception as e:
-	st.error(f"Error setting page config: {str(e)}")
+    with open('config/config.yaml', 'r', encoding='utf-8') as file:
+        config = yaml.load(file, Loader=SafeLoader)
+except FileNotFoundError:
+    st.error("Authentication configuration file 'config.yaml' not found. Please create it.")
+    st.stop()
+
+# Create authenticator object
+authenticator = stauth.Authenticate(
+    config['credentials'],
+    config['cookie']['name'],
+    config['cookie']['key'],
+    config['cookie']['expiry_days']
+)
 
 # Fix path to ensure models can be imported
 # Get the absolute path of the root directory (parent of website directory)
@@ -59,13 +79,68 @@ def safe_execute(func, *args, fallback_result=None, **kwargs):
 		return func(*args, **kwargs)
 	except Exception as e:
 		st.error(f"Error in {func.__name__}: {str(e)}")
+		st.error(traceback.format_exc())
 		return fallback_result
 
 # Initialize default page
 if 'page' not in st.session_state:
-	st.session_state['page'] = 'home'
+	st.session_state['page'] = 'login'
+
+# Login Page
+def LoginPage():
+    st.title("Teacher Trainer Simulator Login")
+    
+    # Login form
+    try:
+        authenticator.login()
+    except Exception as e:
+        st.error(f"Login error: {e}")
+
+    if st.session_state["authentication_status"] is False:
+        st.error('Username/password is incorrect')
+    
+    # Additional authentication options
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        # Password reset
+        try:
+            if st.button("Reset Password"):
+                username = st.text_input("Enter username to reset password")
+                if authenticator.reset_password(username):
+                    st.success('Password reset successfully')
+        except Exception as e:
+            st.error(f"Password reset error: {e}")
+    
+    with col2:
+        # Forgot password
+        try:
+            if st.button("Forgot Password"):
+                username = st.text_input("Enter username")
+                email = st.text_input("Enter email")
+                if authenticator.forgot_password(username):
+                    st.success('Password reset instructions sent')
+        except Exception as e:
+            st.error(f"Forgot password error: {e}")
+    
+    # Registration
+    if st.button("Register New Account"):
+        try:
+            (email, username, name) = authenticator.register_user()
+            if email:
+                st.success('User registered successfully')
+                # Save updated config
+                with open('config.yaml', 'w') as file:
+                    yaml.dump(config, file, default_flow_style=False)
+        except Exception as e:
+            st.error(f"Registration error: {e}")
 
 def StartPage():
+	# Add logout to sidebar
+	with st.sidebar:
+		authenticator.logout()
+		st.write(f'Welcome, *{st.session_state["name"]}*')
+
 	st.title("AI Classroom Simulator")
 	st.divider()
 
@@ -276,15 +351,29 @@ def EvalPage():
 
 # Wrap the main app in a try-except block to catch any errors
 try:
-	# page selector
-	if st.session_state['page'] == 'chat':
-		ChatPage()
-	elif st.session_state['page'] == 'eval':
-		EvalPage()
-	elif st.session_state['page'] == 'home':
-		StartPage()
-	else:
-		st.title("Something went wrong.")
+	# Authentication check and page routing
+	st.write(f"Authentication Status: {st.session_state.get('authentication_status')}")
+	st.write(f"Current Page: {st.session_state.get('page', 'Not set')}")
+	
+	if st.session_state.get('authentication_status') is None:
+		LoginPage()
+	elif st.session_state.get('authentication_status') is False:
+		LoginPage()
+	elif st.session_state.get('authentication_status'):
+		# Debugging: check the current page
+		if st.session_state['page'] == 'login':
+			st.session_state['page'] = 'home'
+
+		# page selector
+		if st.session_state['page'] == 'chat':
+			ChatPage()
+		elif st.session_state['page'] == 'eval':
+			EvalPage()
+		elif st.session_state['page'] == 'home':
+			StartPage()
+		else:
+			st.title("Something went wrong.")
+			st.write(f"Current page state: {st.session_state['page']}")
 except Exception as e:
 	st.error(f"Application error: {str(e)}")
 	st.code(traceback.format_exc())
