@@ -119,7 +119,7 @@ def LoginPage():
     # Registration
     if st.button("Register New Account"):
         try:
-            (email, username, name) = authenticator.register_user(preauthorization=False)
+            (email, username, name) = authenticator.register_user()
             if email:
                 st.success('User registered successfully')
                 # Save updated config
