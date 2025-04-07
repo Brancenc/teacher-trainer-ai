@@ -93,9 +93,9 @@ class DragDropWindow(QWidget):
 
                 self.data_processor.store_in_db(result[0], result[1], json_string, category)  # results[0] chunks, results[1] vectorized_chunks
                 self.label.setText(f"Added to Database: {os.path.basename(file_path)}\n Drag and drop another file")
-                amount = len(result[1])
-                viewer.show_rows(amount)
-                viewer.count_rows()
+                # amount = len(result[1])
+                # viewer.show_rows(amount)
+                # viewer.count_rows()
 
             else: # No text extracted, failure
                 self.label.setText("Unsupported file format or extraction failed.")

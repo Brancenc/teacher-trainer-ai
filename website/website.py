@@ -9,6 +9,7 @@ import warnings
 import logging
 import yaml
 from yaml.loader import SafeLoader
+import json
 
 # Configure Streamlit page before any other Streamlit commands
 try:
@@ -34,8 +35,11 @@ os.environ['TORCH_USE_RTLD_GLOBAL'] = 'YES'  # Help with some PyTorch dynamic lo
 os.environ['STREAMLIT_WATCH_MODULE_SKIP'] = 'torch,transformers,langchain,sentence_transformers,faiss'
 
 # Try to load authentication configuration
+
+# Three lines below it was originally     with open('config/config.yaml', 'r', encoding='utf-8') as file:
+
 try:
-    with open('config/config.yaml', 'r', encoding='utf-8') as file:
+    with open('../Config/config.yaml', 'r', encoding='utf-8') as file:
         config = yaml.load(file, Loader=SafeLoader)
 except FileNotFoundError:
     st.error("Authentication configuration file 'config.yaml' not found. Please create it.")
@@ -70,6 +74,16 @@ except Exception as e:
 	st.code(f"Current directory: {os.getcwd()}")
 	st.code(f"Looking for models in: {os.path.join(root_dir, 'models')}")
 	# Stop the app if imports fail
+	st.stop()
+
+try:
+	from databases.chat-memory.chat-mem import (
+		retrieve_chats,
+		store_chat, 
+	)
+
+except Exception as e:
+	st.error(f"Failure importing ")
 	st.stop()
 
 # Function to safely execute code with error handling
@@ -136,10 +150,43 @@ def LoginPage():
             st.error(f"Registration error: {e}")
 
 def StartPage():
+	# print("Username: ", st.session_state["username"])
 	# Add logout to sidebar
 	with st.sidebar:
 		authenticator.logout()
 		st.write(f'Welcome, *{st.session_state["name"]}*')
+		st.write("Select A Previous Scenario")
+
+
+
+		for i in range(1,15):
+			button_clicked = st.button(f"Button{i}")
+
+			if button_clicked:
+				st.write(f"Button{i} was clicked")
+		
+		# conversations = retrieve_chats(st.session_state["username"])
+		# for id, conversation, g_level, subj, chal in conversations:
+			# button_clicked = st.button(f"ID: {id}")	# FOR NOW JUST USE ID
+
+			# if button_clicked:
+				# st.session_state["subject"] = subj
+				# st.session_state["gradeLevel"] = g_level
+				# st.session_state["challenge"] = chal
+				# st.session_state["page"] = "chat"
+				# st.session_state.messages = json.loads(conversation)	# TODO Make sure to change this to a list 
+				# TODO: Insert the knowledge messages too (the teacher assistant )
+				# st.rerun()
+
+
+				#display previous chat messages
+				# for message in st.session_state["knowledgeMessages"]:
+				# 	with messageCont.chat_message(message["role"]):
+				# 		st.markdown(message["content"])
+
+				# NOTE The code above might be helpful for putting the conversation onto the streamlit page
+				# Additional NOTE The code is already implemented in the ChatPage() funciton so you might not even need this
+
 
 	st.title("AI Classroom Simulator")
 	st.divider()
@@ -223,6 +270,9 @@ def ChatPage():
 				message_placeholder.markdown(full_response)
 			# Add assistant response to chat history
 			st.session_state["knowledgeMessages"].append({"role": "assistant", "content": full_response})
+
+
+
 
 	# Student chat interface
 	# Initialize chat history
