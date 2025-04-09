@@ -77,13 +77,15 @@ except Exception as e:
 	st.stop()
 
 try:
-	from databases.chat-memory.chat-mem import (
+	from databases.chat_memory.chat_mem import (
 		retrieve_chats,
-		store_chat, 
+		store_chat,
+		replace_chat, 
+		retrieve_conversations
 	)
 
 except Exception as e:
-	st.error(f"Failure importing ")
+	st.error(f"Failure importing chat memory scripts: {e}")
 	st.stop()
 
 # Function to safely execute code with error handling
@@ -150,42 +152,29 @@ def LoginPage():
             st.error(f"Registration error: {e}")
 
 def StartPage():
-	# print("Username: ", st.session_state["username"])
 	# Add logout to sidebar
 	with st.sidebar:
 		authenticator.logout()
 		st.write(f'Welcome, *{st.session_state["name"]}*')
 		st.write("Select A Previous Scenario")
-
-
-
-		for i in range(1,15):
-			button_clicked = st.button(f"Button{i}")
-
-			if button_clicked:
-				st.write(f"Button{i} was clicked")
 		
-		# conversations = retrieve_chats(st.session_state["username"])
-		# for id, conversation, g_level, subj, chal in conversations:
-			# button_clicked = st.button(f"ID: {id}")	# FOR NOW JUST USE ID
+		conversations = retrieve_chats(st.session_state["username"])
+		if conversations:
+			for id, conversation, g_level, subj, chal in conversations:
+				button_clicked = st.button(f"{chal.capitalize()} {g_level} in {subj}")	# FOR NOW JUST USE ID
 
-			# if button_clicked:
-				# st.session_state["subject"] = subj
-				# st.session_state["gradeLevel"] = g_level
-				# st.session_state["challenge"] = chal
-				# st.session_state["page"] = "chat"
-				# st.session_state.messages = json.loads(conversation)	# TODO Make sure to change this to a list 
-				# TODO: Insert the knowledge messages too (the teacher assistant )
-				# st.rerun()
-
-
-				#display previous chat messages
-				# for message in st.session_state["knowledgeMessages"]:
-				# 	with messageCont.chat_message(message["role"]):
-				# 		st.markdown(message["content"])
-
-				# NOTE The code above might be helpful for putting the conversation onto the streamlit page
-				# Additional NOTE The code is already implemented in the ChatPage() funciton so you might not even need this
+				if button_clicked:
+					st.session_state["subject"] = subj
+					st.session_state["gradeLevel"] = g_level
+					st.session_state["challenge"] = chal
+					st.session_state["page"] = "chat"
+					st.session_state["chat_id"] = id
+					st.session_state.messages = json.loads(conversation)
+					
+					# TODO: Insert the knowledge messages too (the teacher assistant )
+					st.rerun()
+		else:
+			st.write("No previous chats")
 
 
 	st.title("AI Classroom Simulator")
@@ -233,6 +222,7 @@ def ChatPage():
 
 		if "knowledgeMessages" not in st.session_state:
 			st.session_state.knowledgeMessages = [{"role": "assistant", "content": "Ask about teaching knowledge"}]
+			# TODO Add knowledge messages here
 
 		#display previous chat messages
 		for message in st.session_state["knowledgeMessages"]:
@@ -270,8 +260,7 @@ def ChatPage():
 				message_placeholder.markdown(full_response)
 			# Add assistant response to chat history
 			st.session_state["knowledgeMessages"].append({"role": "assistant", "content": full_response})
-
-
+			# TODO Add knowledge messages here
 
 
 	# Student chat interface
@@ -293,6 +282,11 @@ def ChatPage():
 		
 		# Add the scenario as the first assistant message
 		st.session_state.messages.append({"role": "assistant", "content": f"**Classroom Scenario:**\n\n{scenario}\n\n*You are now interacting with a student. How would you respond as the teacher?*"})
+		
+		# Store the chat in the db and track the ID 
+		last_row_id = store_chat(st.session_state["username"], st.session_state.messages, st.session_state["gradeLevel"], st.session_state["subject"], st.session_state["challenge"])
+		st.session_state["chat_id"] = last_row_id
+
 
 	# Display chat messages from history on app rerun
 	for message in st.session_state["messages"]:
@@ -311,7 +305,6 @@ def ChatPage():
 		with st.chat_message("assistant"):
 			message_placeholder = st.empty()
 			full_response = ""
-			
 			with st.spinner("Generating response..."):
 				try:
 					# Pass the entire conversation history to get_student_response
@@ -322,6 +315,7 @@ def ChatPage():
 						st.session_state["challenge"],
 						prompt,
 						st.session_state["messages"],  # Pass the full conversation history
+						retrieve_conversations(st.session_state["username"], st.session_state["chat_id"]),
 						fallback_result="I'm having trouble responding right now."
 					)
 				except Exception as e:
@@ -337,6 +331,8 @@ def ChatPage():
 			message_placeholder.markdown(full_response)
 		# Add assistant response to chat history
 		st.session_state["messages"].append({"role": "assistant", "content": full_response})
+		# Update conversation in database
+		replace_chat(st.session_state["chat_id"], st.session_state["username"], st.session_state["messages"], st.session_state["gradeLevel"], st.session_state["subject"], st.session_state["challenge"])
 
 def EvalPage():
 	st.title("Evaluation")
