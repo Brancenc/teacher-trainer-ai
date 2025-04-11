@@ -283,40 +283,31 @@ def get_teaching_evaluation(conversation_text=None, grade_level=None, subject=No
         Relevant Research:
         {knowledge}
         
-        First, provide an overall rating (poor, fair, good, great, amazing) that accurately reflects the teacher's performance.
-        Then, provide a detailed analysis of how well the teacher handled the situation, including the following categories:
-        - Comprehension: How well did the teacher understand and address the student's needs?
-        - Engagement: How effectively did the teacher engage with the student?
-        - Accuracy: How accurate was the teacher's approach to the situation?
-        - Believability of Role: How well did the teacher maintain their professional role?
-        - Opportunities for growth: What opportunities for improvement were present?
-        
-        Make sure your overall rating is consistent with your detailed analysis.
-        Format your response as: OVERALL: [rating]\n\nANALYSIS: [detailed evaluation]
+        Provide a score from 0-100 and a detailed analysis of how well the teacher handled the situation.
+        Format your response as: SCORE: [number]\n\nANALYSIS: [detailed evaluation]
         """
         
         evaluation = simple_generate(prompt)
         
         # Extract score and text
         try:
-            if "OVERALL:" in evaluation:
+            if "SCORE:" in evaluation:
                 parts = evaluation.split("ANALYSIS:", 1)
                 score_part = parts[0].strip()
-                # Extract the rating
-                score = score_part.replace("OVERALL:", "").strip()
+                score = int(score_part.replace("SCORE:", "").strip())
                 eval_text = parts[1].strip() if len(parts) > 1 else evaluation
             else:
                 # If format isn't followed, make an estimate
-                score = "Fair"
+                score = 50
                 eval_text = evaluation
         except:
-            score = "Fair"
+            score = 50
             eval_text = evaluation
         
         return (score, eval_text)
     except Exception as e:
         print(f"Error generating evaluation: {e}")
-        return ("Fair", f"Unable to generate evaluation: {str(e)}")
+        return (0, f"Unable to generate evaluation: {str(e)}")
 
 def handle_conversation():
     context = ""
