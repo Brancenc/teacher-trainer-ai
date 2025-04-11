@@ -1,9 +1,12 @@
 import sqlite3
 import numpy as np
 import json
-from sentence_transformers import SentenceTransformer
-import os
 import time
+from sentence_transformers import SentenceTransformer
+import faiss
+
+# NOTE Rows 0-17980 are the professor's database
+# NOTE The clear_cache and clear_query_log functions require a password. Right now it is just team2pass
 
 
 ''' 
@@ -21,196 +24,169 @@ CREATE TABLE embeddings (
     vector BLOB,                   -- Binary vector representation (384 dimensions)
     FOREIGN KEY (chunk_id) REFERENCES chunks(id)
 );
+
+
+CREATE TABLE IF NOT EXISTS cache (
+    query TEXT PRIMARY KEY,
+    category TEXT,
+    results TEXT,
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS query_logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    query TEXT,
+    category TEXT,
+    execution_time REAL,
+    source TEXT,
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
 '''
 
 db_path = "vector_db.sqlite"
-# CACHE_FILE = "/home/team2/databases/vector/cache.json" # REPLACE WITH CACHE FILE
-
+model = SentenceTransformer('all-MiniLM-L6-v2')
 
 class Connect:
-    def __init__(self, path = db_path):
+    def __init__(self, path = db_path, mod = model):
         self.db_path = path
-        self.model = SentenceTransformer('all-MiniLM-L6-v2')
-        self.conn = None    # Values of these will change in connect function
-        self.cursor = None  # Values of these will change in connect function
-        self.cache = {}
-        self._connect()
-        
-        # Json Way
-        # self._load_cache()
+        self.model = mod
 
-        # Cache table way
-        # self._create_caching_tables()
+        self.model.encode(["warmup"])       # Running the model with a warmup loads all the libraries, improving efficiency on first use
 
-
-    def _connect(self) -> None:
         try:
-            self.conn = sqlite3.connect(self.db_path)
-            self.cursor = self.conn.cursor()
-        except sqlite3.Error as e:
-            self.conn = None
-            self.cursor = None
-            print(f"Error connecting to the database: {e}")
+            with self._create_connection() as conn:
+                self._create_caching_tables(conn)
+                self._create_indexes(conn)
+        except Exception as e:
+            print(f"Error during setup: {e}")
+        
+    def _create_connection(self):
+        return sqlite3.connect(self.db_path, timeout=10)
+    
+    def _create_indexes(self, conn):
+        try:
+            cursor = conn.cursor()
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_category ON chunks(category);")
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_chunks_id ON chunks(id);")
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_embeddings_chunk_id ON embeddings(chunk_id);")
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_cache_query_category ON cache(query, category);")
+            conn.commit()
+        except Exception as e:
+            print(f"Error creating indexes: {e}")
 
-        except Exception as generic_e: #catch any other errors.
-            self.conn = None
-            self.cursor = None
-            print(f"An unexpected error occured: {generic_e}")
+    def _create_caching_tables(self, conn):
+        cursor = conn.cursor()
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS cache (
+                query TEXT PRIMARY KEY,
+                category TEXT,
+                results TEXT,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS query_logs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                query TEXT,
+                category TEXT,
+                execution_time REAL,
+                source TEXT,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        conn.commit()
 
+    def _get_cached_result(self, conn, query, category=None):
+        cursor = conn.cursor()
+        if category:
+            cursor.execute("SELECT results FROM cache WHERE query = ? AND category = ?", (query, category))
+        else:
+            cursor.execute("SELECT results FROM cache WHERE query = ?", (query,))
+        cached_result = cursor.fetchone()
+        return json.loads(cached_result[0]) if cached_result else None
+        
+    def _cache_result(self, conn, query, category, results):
+        cursor = conn.cursor()
+        r = json.dumps(results)
+        cursor.execute("REPLACE INTO cache (query, category, results) VALUES (?, ?, ?)", (query, category, r))
+        conn.commit()
 
-    def _verify_connection(self):  # Function for defnesive programming
-        return self.conn is not None and self.cursor is not None
-
-
-    def close_connection(self) -> None:
-        if self.conn:
-            self.conn.close()
-            print("Database connection closed.")
-
-    # First way using json file
-    # def _load_cache(self):
-    #     if os.path.exists(CACHE_FILE):
-    #         try:
-    #             with open(CACHE_FILE, "r") as f:
-    #                 self.cache = json.load(f)
-    #         except (json.JSONDecodeError, OSError):
-    #             print("Cache file is empty or corrupt")
-    #             self.cache = {}
-    #     else:
-    #         self.cache = {}
-
-    # def _save_cache(self):
-    #     with open(CACHE_FILE, "w") as f:
-    #         json.dump(self.cache, f, indent = 4)
-
-
-    # Second way using cache table
-    def _create_caching_tables(self):
-        """Creates a persistent cache table if it doesn't exist and created corresponding performance tracking table"""
-        if self._verify_connection():
-            self.cursor.execute("""
-                CREATE TABLE IF NOT EXISTS cache (
-                    query TEXT PRIMARY KEY,
-                    category TEXT,
-                    results TEXT,
-                    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-                )
-            """)
-
-            self.cursor.execute("""
-                CREATE TABLE IF NOT EXISTS query_logs (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    query TEXT,
-                    category TEXT,
-                    execution_time REAL,
-                    source TEXT,
-                    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-                )
-            """)
-            self.conn.commit()
-
-    def _log_query_performance(self, query, category, execution_time, source):
-        self.cursor.execute(
-            "INSERT INTO query_log (query, category, execution_time, source) VALUES (?, ?, ?, ?)",
+    def _log_query_performance(self, conn, query, category, execution_time, source):
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO query_logs (query, category, execution_time, source) VALUES (?, ?, ?, ?)",
             (query, category, execution_time, source)
         )
-        self.conn.commit()
+        conn.commit()
 
-    def _get_cached_result(self, query, category):
-        """Checks if a query result exists in cache."""
-        self.cursor.execute("SELECT results FROM cache WHERE query = ? AND category = ?", (query, category))
-        cached_result = self.cursor.fetchone()
-        return json.loads(cached_result[0]) if cached_result else None
-    
-    def _cache_result(self, query, category, results):
-        """Stores search results in cache."""
-        results_json = json.dumps(results)
-        self.cursor.execute("REPLACE INTO cache (query, category, results) VALUES (?, ?, ?)", (query, category, results_json))
-        self.conn.commit()
-
-    def search(self, query, top_n = 3, category = None) -> list[dict]:
-        '''Searches the vector database with a certain query'''
-        if not self._verify_connection():
-            print("No database connection")
-            return []
-        
+    def search(self, query, top_n=3, cate=None):
         start_time = time.time()
-        
-        # Json Way
-        # cache_key = f"{query}::{category}"
-        # if cache_key in self.cache:
-        #     print("Returning cached results")
-        #     return self.cache[cache_key]
 
-        # Cache Table way
-        cached_results = self._get_cached_result(query, category)
-        if cached_results:
+        # Establish connection 
+        with self._create_connection() as conn:
+            cursor = conn.cursor()
+            # Check cache 
+            cached_results = self._get_cached_result(conn, query, cate)
+            if cached_results:
+                execution_time = time.time() - start_time
+                c = "All" if cate == None else cate
+                self._log_query_performance(conn, query, c, execution_time, "cache")
+                print(f"Returning Cached Results in {execution_time} seconds")
+                return cached_results
+            
+            # Build the SQL Query
+            sql_query = "SELECT c.id, c.text, e.vector FROM chunks c JOIN embeddings e ON c.id = e.chunk_id"
+            if cate:    
+                sql_query += f" WHERE c.category = ?"   # ? is a parameterized query {category} could lead to SQL injections
+
+
+            # Execute the Query
+            params = (cate,) if cate else ()
+            cursor.execute(sql_query, params)
+            results = cursor.fetchall()
+
+            if not results:
+                print("No data found in database.")
+                return []
+            
+            # Get results from results
+            ids = [row[0] for row in results]
+            texts = [row[1] for row in results]
+            embeddings = np.array([np.frombuffer(row[2], dtype=np.float32) for row in results])
+
+            # Build FAISS index
+            index = faiss.IndexFlatL2(embeddings.shape[1])
+            index.add(embeddings)
+
+            # Encode query
+            query_embedding = self.model.encode([query]).astype(np.float32)
+
+
+            # Search index
+            distances, indices = index.search(query_embedding, top_n)
+
+            # Retrievew corresponding knowledge texts
+            knowledge = [texts[idx] for idx in indices[0] if idx < len(texts)]
+
+
+            # Add to cache
+            self._cache_result(conn, query, cate, knowledge)
             execution_time = time.time() - start_time
-            self._log_query_performance(query, category, execution_time, "cache")
-            print("Returning cached results.")
-            return cached_results
-        
+            self._log_query_performance(conn, query, cate, execution_time, "database")
+            print(f"Computed in database in {execution_time} seconds")
+            return knowledge
 
-        
-        # Convert query to embedding
-        query_embedding = self.model.encode([query])[0] # [0] is used since we only passed one query, the output will only be one vector
-        
-
-        # Build the SQL Query
-        sql_query = "SELECT c.id, c.text, c.metadata, c.category, c.usage_count, c.effectiveness_score, e.vector \
-                    FROM chunks C \
-                    JOIN embeddings e on c.id = e.chunk_id"
-        if category:    
-            sql_query += f" WHERE c.category = ?"   # ? is a parameterized query {category} could lead to SQL injections
-
-
-        # Execute the Query
-        params = (category,) if category else ()
-        self.cursor.execute(sql_query, params)
-        results = self.cursor.fetchall()
-
-        # Compute Similarities
-        similarities = []
-        for id, text, metadata, category, usage, effectiveness, vector in results:
-            vector = np.frombuffer(vector, dtype=np.float32)
-            similarity = np.dot(query_embedding, vector)
-
-            similarities.append((id, text, metadata, category, similarity))
-        
-        similarities.sort(key= lambda x: x[4], reverse = True)
-        top_results = similarities[:top_n]
-
-
-        # Format Results
-        formatted_results = []
-        for id, text, metadata, category, similarity in top_results:
-            formatted_results.append({
-                "id": id,
-                "text": text,
-                "metadata": json.loads(metadata),
-                "category": category,
-                "similarity": float(similarity)
-            })
-        
-        # JSON way
-        # self.cache[cache_key] = formatted_results
-        # self._save_cache()
-
-        # Cache table way
-        self._cache_result(query, category, formatted_results)
-        execution_time = time.time() - start_time
-        self._log_query_performance(query, category, execution_time, "database")
-        print("Not in cache")
-        return formatted_results
-        
 
 def main():
-    connection = Connect()
-    results = connection.search("Behavior of second grader")
-    # print(results)
-    results2 = connection.search("Behavior of second grader")
-    # print(results2)
-main()
+    pass
+    # conn = sqlite3.connect(db_path, timeout = 10)
+    # cursor = conn.cursor()
 
-    
+    # cursor.execute("pragma journal_mode")
+    # result = cursor.fetchone()
+    # print(f"Journal mode: {result[0]}")
+    # conn = Connect()
 
+if __name__ == "__main__":
+    main()

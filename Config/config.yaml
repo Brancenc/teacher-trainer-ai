@@ -33,6 +33,11 @@ credentials:
       password: $2b$12$SxD/z1xJN6C7G7ygeiCuDOR88ZFAMoky9nCm9JgACEuJiVbVV6/4a
       roles:
       - viewer
+    test2:
+      email: null2@null.null
+      logged_in: false
+      name: test two
+      password: $2b$12$A8pndoG9MW5ZsFMTz5i4i.MyzQlm2g13RArDL1Dvi.UK9P9BC6xdi
 oauth2:
   google:
     client_id: null

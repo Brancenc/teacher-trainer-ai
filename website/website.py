@@ -9,8 +9,10 @@ import warnings
 import logging
 import yaml
 from yaml.loader import SafeLoader
-
+import json
 from VTuberComponent.vtuber.__init__ import vtuber
+
+CONFIG_PATH = './Config/config.yaml'
 
 # Configure Streamlit page before any other Streamlit commands
 try:
@@ -40,10 +42,12 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Try to load authentication configuration
+
+# Three lines below it was originally     with open('config/config.yaml', 'r', encoding='utf-8') as file:
+
 try:
-	config_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'Config', 'config.yaml')
-	with open('config/config.yaml', 'r', encoding='utf-8') as file:
-		config = yaml.load(file, Loader=SafeLoader)
+    with open(CONFIG_PATH, 'r', encoding='utf-8') as file:
+        config = yaml.load(file, Loader=SafeLoader)
 except FileNotFoundError:
 	st.error("Authentication configuration file 'config.yaml' not found. Please create it.")
 	st.stop()
@@ -77,6 +81,18 @@ except Exception as e:
 	st.code(f"Current directory: {os.getcwd()}")
 	st.code(f"Looking for models in: {os.path.join(root_dir, 'models')}")
 	# Stop the app if imports fail
+	st.stop()
+
+try:
+	from databases.chat_memory.chat_mem import (
+		retrieve_chats,
+		store_chat,
+		replace_chat, 
+		retrieve_conversations
+	)
+
+except Exception as e:
+	st.error(f"Failure importing chat memory scripts: {e}")
 	st.stop()
 
 # Function to safely execute code with error handling
@@ -193,12 +209,12 @@ def LoginPage():
 			}
 			
 			logger.info("Updated config with new user")
-			logger.info(f"Config path: {config_path}")
+			logger.info(f"Config path: {CONFIG_PATH}")
 			
 			# Save the updated config
 			try:
 				logger.info("Attempting to save config file...")
-				with open(config_path, 'w') as file:
+				with open(CONFIG_PATH, 'w') as file:
 					yaml.dump(config, file, default_flow_style=False)
 				logger.info("Config saved successfully")
 				st.success("Registration successful! Please try logging in.")
@@ -211,6 +227,26 @@ def StartPage():
 	with st.sidebar:
 		authenticator.logout()
 		st.write(f'Welcome, *{st.session_state["name"]}*')
+		st.write("Select A Previous Scenario")
+		
+		conversations = retrieve_chats(st.session_state["username"])
+		if conversations:
+			for id, conversation, g_level, subj, chal in conversations:
+				button_clicked = st.button(f"{chal.capitalize()} {g_level} in {subj}")	# FOR NOW JUST USE ID
+
+				if button_clicked:
+					st.session_state["subject"] = subj
+					st.session_state["gradeLevel"] = g_level
+					st.session_state["challenge"] = chal
+					st.session_state["page"] = "chat"
+					st.session_state["chat_id"] = id
+					st.session_state.messages = json.loads(conversation)
+					
+					# TODO: Insert the knowledge messages too (the teacher assistant )
+					st.rerun()
+		else:
+			st.write("No previous chats")
+
 
 	st.title("AI Classroom Simulator")
 	st.divider()
@@ -260,6 +296,7 @@ def ChatPage():
 
 		if "knowledgeMessages" not in st.session_state:
 			st.session_state.knowledgeMessages = [{"role": "assistant", "content": "Ask about teaching knowledge"}]
+			# TODO Add knowledge messages here
 
 		#display previous chat messages
 		for message in st.session_state["knowledgeMessages"]:
@@ -297,6 +334,8 @@ def ChatPage():
 				message_placeholder.markdown(full_response)
 			# Add assistant response to chat history
 			st.session_state["knowledgeMessages"].append({"role": "assistant", "content": full_response})
+			# TODO Add knowledge messages here
+
 
 	# Student chat interface
 	# Initialize chat history
@@ -317,6 +356,11 @@ def ChatPage():
 		
 		# Add the scenario as the first assistant message
 		st.session_state.messages.append({"role": "assistant", "content": f"**Classroom Scenario:**\n\n{scenario}\n\n*You are now interacting with a student. How would you respond as the teacher?*"})
+		
+		# Store the chat in the db and track the ID 
+		last_row_id = store_chat(st.session_state["username"], st.session_state.messages, st.session_state["gradeLevel"], st.session_state["subject"], st.session_state["challenge"])
+		st.session_state["chat_id"] = last_row_id
+
 
 	# Display chat messages from history on app rerun
 	for message in st.session_state["messages"]:
@@ -335,7 +379,6 @@ def ChatPage():
 		with st.chat_message("assistant"):
 			message_placeholder = st.empty()
 			full_response = ""
-			
 			with st.spinner("Generating response..."):
 				try:
 					# Pass the entire conversation history to get_student_response
@@ -346,6 +389,7 @@ def ChatPage():
 						st.session_state["challenge"],
 						prompt,
 						st.session_state["messages"],  # Pass the full conversation history
+						retrieve_conversations(st.session_state["username"], st.session_state["chat_id"]),
 						fallback_result="I'm having trouble responding right now."
 					)
 				except Exception as e:
@@ -361,6 +405,10 @@ def ChatPage():
 			message_placeholder.markdown(full_response)
 		# Add assistant response to chat history
 		st.session_state["messages"].append({"role": "assistant", "content": full_response})
+
+		# Update conversation in database
+		replace_chat(st.session_state["chat_id"], st.session_state["username"], st.session_state["messages"], st.session_state["gradeLevel"], st.session_state["subject"], st.session_state["challenge"])
+
 	  	#change animation of vTuber
 
 		count = 0
@@ -372,6 +420,7 @@ def ChatPage():
 				st.session_state["vTuberCounter"] = 0
 			count = st.session_state["vTuberCounter"]
 		st.session_state["vTuberAnimation"] = ["Happy","Sad","Angry","Idling","Disgust","Surprised"][count]
+
 
 def EvalPage():
 	st.title("Evaluation")
