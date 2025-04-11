@@ -1,0 +1,19 @@
+Team Agreement
+
+Punctuality at Meetings
+  All team members commit to showing up on time for team meetings. All team members agree to make aware the other team members in the event that they are unable to attend the meeting.
+
+Active Participation
+  Each team member actively participates in team meetings, sharing progress, obstacles, and looking for opportunities to collaborate. 
+
+Limitation of Work in Progress
+  The team agrees on a maximum number of tasks that can be completed at the same time to avoid overload and promote task completion.
+
+Code Base
+  The team agrees on using GitHub as a primary location for code hosting and version control.
+
+Code Review Expectations
+  All code changes must be reviewed by at least two team members before merging into the staging branch, and at least three team members before merging into the production branch.
+
+Using consistent media of communication
+  The team agrees to use discord as a primary form of communication, both for scrum meetings, and for general sharing of information.

@@ -1,0 +1,11 @@
+Meeting Notes
+
+Discussed getting new material for training the AI
+Discussed issues with getting connected to the server
+Discussed where code can be accessed while the server is out of commission
+Talked about the new login UI
+Talked about next meeting with our subject mater expert
+Talked about possibly going all to GitHub and not using the folder going forward
+Talked about Brancen making a basic tutorial for using git
+Discussed talking to MJ about getting our stuff back on the server
+Discussed the next assignment, its requirements, and its due date
