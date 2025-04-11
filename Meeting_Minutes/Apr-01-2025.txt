@@ -1,0 +1,20 @@
+meeting notes
+	talked about where we are with fine tuning
+	talked about the 3d models and where they are at
+	talked about adding roles to the users
+	talked about creating the pages for when users have roles
+	talked about the presentation for tomorrow
+	talked about integrating the 3d visuals and how close we are.
+	talked about where we are at on memory across sessions
+	talked about timeline for implementation on future features
+		3d Visuals
+		Memory across sessions
+		Role based views
+	talked about running some tests to see how the AI actually responds when doing different grades
+	talked about more articles and resources that our SME has sent to us to be added to the database
+	talked more about the order in which we are going to present milestones
+
+
+Eder is going to work on saving across sessions
+Dallen is going to work on the page views for individual users
+Brancen is going to run tests on how the AI does with speech patterns across different grades and try to fix the form for adding a new user.
