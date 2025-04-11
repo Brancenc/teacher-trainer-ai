@@ -10,8 +10,9 @@ import logging
 import yaml
 from yaml.loader import SafeLoader
 import json
-
 from VTuberComponent.vtuber.__init__ import vtuber
+
+CONFIG_PATH = './Config/config.yaml'
 
 # Configure Streamlit page before any other Streamlit commands
 try:
@@ -45,7 +46,7 @@ logger = logging.getLogger(__name__)
 # Three lines below it was originally     with open('config/config.yaml', 'r', encoding='utf-8') as file:
 
 try:
-    with open('../Config/config.yaml', 'r', encoding='utf-8') as file:
+    with open(CONFIG_PATH, 'r', encoding='utf-8') as file:
         config = yaml.load(file, Loader=SafeLoader)
 except FileNotFoundError:
 	st.error("Authentication configuration file 'config.yaml' not found. Please create it.")
@@ -208,12 +209,12 @@ def LoginPage():
 			}
 			
 			logger.info("Updated config with new user")
-			logger.info(f"Config path: {config_path}")
+			logger.info(f"Config path: {CONFIG_PATH}")
 			
 			# Save the updated config
 			try:
 				logger.info("Attempting to save config file...")
-				with open(config_path, 'w') as file:
+				with open(CONFIG_PATH, 'w') as file:
 					yaml.dump(config, file, default_flow_style=False)
 				logger.info("Config saved successfully")
 				st.success("Registration successful! Please try logging in.")
