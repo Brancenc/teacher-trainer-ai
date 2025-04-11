@@ -237,6 +237,7 @@ def StartPage():
 		st.session_state['page'] = 'chat'
 		#wipe messages in current session
 		st.session_state.messages = []  # Start with empty messages
+		st.session_state["vTuberAnimation"] = "Idling"
 		st.rerun()
 
 def ChatPage():
