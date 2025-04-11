@@ -22,7 +22,7 @@ except ImportError:
     model = None
 
 # Database Path
-DB_PATH = '/home/team2/databases/vector/vector_dv.sqlite'
+DB_PATH = './databases/vector/vector_db.sqlite'
 
 # Initialize a simple text generation function instead of using LangChain
 def simple_generate(prompt):
