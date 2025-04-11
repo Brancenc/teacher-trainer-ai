@@ -9,4 +9,4 @@ discussed questions for meeting with contact
 	logins for users and administrators
 	having long term memory
 	having student profiles and a classroom associated with a user
-discussed what tasks need to be added to the next sprint, talked about waiting until after the meeting tomorrow as well as getting more info for the next assignment on Monday.
+discussed what tasks need to be added to the next sprint, talked about waiting until after the meeting tomorrow as well as getting more info for the next assignment on Monday. 
