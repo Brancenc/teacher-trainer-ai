@@ -8,7 +8,10 @@ import traceback
 import warnings
 import logging
 import yaml
+import random
 from yaml.loader import SafeLoader
+
+from VTuberComponent.vtuber.__init__ import vtuber
 
 # Configure Streamlit page before any other Streamlit commands
 try:
@@ -35,10 +38,11 @@ os.environ['STREAMLIT_WATCH_MODULE_SKIP'] = 'torch,transformers,langchain,senten
 
 # Try to load authentication configuration
 try:
-    with open('config/config.yaml', 'r', encoding='utf-8') as file:
+    config_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'Config', 'config.yaml')
+    with open(config_path, 'r', encoding='utf-8') as file:
         config = yaml.load(file, Loader=SafeLoader)
 except FileNotFoundError:
-    st.error("Authentication configuration file 'config.yaml' not found. Please create it.")
+    st.error(f"Authentication configuration file 'config.yaml' not found at {config_path}. Please create it.")
     st.stop()
 
 # Create authenticator object
@@ -166,6 +170,7 @@ def StartPage():
 		st.session_state['page'] = 'chat'
 		#wipe messages in current session
 		st.session_state.messages = []  # Start with empty messages
+		st.session_state["vTuberAnimation"] = "Idling"
 		st.rerun()
 
 def ChatPage():
@@ -177,6 +182,8 @@ def ChatPage():
 			st.session_state['page'] = 'eval'
 			st.rerun()
 		
+		st.divider()
+		vtuber(anim=st.session_state["vTuberAnimation"],key="vTuber")
 		st.divider()
 		st.markdown("### Knowledge Explorer")
 		st.markdown("Ask questions about teaching concepts in the box below.")
@@ -287,6 +294,17 @@ def ChatPage():
 			message_placeholder.markdown(full_response)
 		# Add assistant response to chat history
 		st.session_state["messages"].append({"role": "assistant", "content": full_response})
+		#change animation of vTuber
+
+		count = 0
+		if "vTuberCounter" not in st.session_state:
+			st.session_state["vTuberCounter"] = 0
+		else:
+			st.session_state["vTuberCounter"] += 1
+			if st.session_state["vTuberCounter"] > 5:
+				st.session_state["vTuberCounter"] = 0
+			count = st.session_state["vTuberCounter"]
+		st.session_state["vTuberAnimation"] = ["Happy","Sad","Angry","Idling","Disgust","Surprised"][count]
 
 def EvalPage():
 	st.title("Evaluation")
