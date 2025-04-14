@@ -3,6 +3,7 @@ import faiss
 import numpy as np
 import os
 import warnings
+import json
 
 # Suppress warnings
 warnings.filterwarnings('ignore')
@@ -21,7 +22,7 @@ except ImportError:
     model = None
 
 # Database Path
-DB_PATH = '/home/team2/databases/vector/vector_dv.sqlite'
+DB_PATH = './databases/vector/vector_db.sqlite'
 
 # Initialize a simple text generation function instead of using LangChain
 def simple_generate(prompt):
@@ -135,7 +136,7 @@ def evaluate_response(user_response, knowledge):
         print(f"Error evaluating response: {e}")
         return "Unable to evaluate response. Please try again."
 
-def get_student_response(grade_level, subject, challenge_type, teacher_message, conversation_history=None):
+def get_student_response(grade_level, subject, challenge_type, teacher_message, conversation_history=None, other_conversations=None):
     """
     Generate a student's response to a teacher's message with conversation history.
     
@@ -154,6 +155,7 @@ def get_student_response(grade_level, subject, challenge_type, teacher_message, 
         # Format conversation history if provided
         history_text = ""
         scenario = ""
+        other_history = ""
         
         if conversation_history and len(conversation_history) > 0:
             # Extract the scenario from the first message if it exists
@@ -172,7 +174,33 @@ def get_student_response(grade_level, subject, challenge_type, teacher_message, 
                     history_text += f"Teacher: {msg.get('content', '')}\n"
                 elif msg.get("role") == "assistant":
                     history_text += f"Student: {msg.get('content', '')}\n"
-        
+
+        # Include other conversations for memory across sessions
+        if other_conversations:
+            i = 1
+            for tup in other_conversations:
+                loaded_data = json.loads(tup[0])
+                other_history += f"Conversation {i}\n"
+                if loaded_data and len(loaded_data) > 0:
+                    # Get the first message
+                    first_msg = loaded_data[0]
+                    if first_msg.get("role") == "assistant" and "Classroom Scenario" in first_msg.get("content", ""):
+                        text = first_msg.get("content", "")
+                        if "*You are now" in text:
+                            other_history += text.split("*You are now")[0].strip()
+                        else:
+                            other_history += text
+
+                    # Format the rest of the conversation history
+                    for msg in loaded_data[1:]:  # Skip the scenario message
+                        if msg.get("role") == "user":
+                            other_history += f"Teacher: {msg.get('content', '')}\n"
+                        elif msg.get("role") == "assistant":
+                            other_history += f"Student: {msg.get('content', '')}\n"
+
+                other_history += "\n"
+                i += 1
+
         # Create a prompt for student response with history
         context = f"""
         You are a {grade_level} student in a {subject} class with a {challenge_type} challenge.
@@ -190,7 +218,12 @@ def get_student_response(grade_level, subject, challenge_type, teacher_message, 
         DO NOT evaluate the teacher's response. DO NOT give feedback on teaching methods.
         Just respond naturally as a {grade_level} student would.
         """
-        
+        # TODO Cross Chat Memory Here
+        # {"Here are some other conversations that occured with different students. RESPOND AS THE STUDENT to the Previous Conversation, but use the conversations below if they are referenced." 
+        #  if other_history else ""}
+        # {other_history}
+        # """"""
+
         # Generate the student response
         return simple_generate(context)
     except Exception as e:
@@ -283,16 +316,16 @@ def get_teaching_evaluation(conversation_text=None, grade_level=None, subject=No
         Relevant Research:
         {knowledge}
         
-        First, provide an overall rating (poor, fair, good, great, amazing) that accurately reflects the teacher's performance.
-        Then, provide a detailed analysis of how well the teacher handled the situation, including the following categories:
+        First, provide an overall rating (poor, fair, good, great, amazing) that accurately replects the teacher's performance.
+        Then, provide a detailed analysis of how well the theacher handled the situateion, including the following categories:
         - Comprehension: How well did the teacher understand and address the student's needs?
         - Engagement: How effectively did the teacher engage with the student?
         - Accuracy: How accurate was the teacher's approach to the situation?
         - Believability of Role: How well did the teacher maintain their professional role?
         - Opportunities for growth: What opportunities for improvement were present?
-        
+
         Make sure your overall rating is consistent with your detailed analysis.
-        Format your response as: OVERALL: [rating]\n\nANALYSIS: [detailed evaluation]
+        Pormat your response as: OVERALL: [rating]\n\nANALYSIS: [detailed evaluation]
         """
         
         evaluation = simple_generate(prompt)
@@ -302,8 +335,8 @@ def get_teaching_evaluation(conversation_text=None, grade_level=None, subject=No
             if "OVERALL:" in evaluation:
                 parts = evaluation.split("ANALYSIS:", 1)
                 score_part = parts[0].strip()
-                # Extract the rating
-                score = score_part.replace("OVERALL:", "").strip()
+                #Extract the rating
+                score = score_part.replace("OVERALL:","").strip()
                 eval_text = parts[1].strip() if len(parts) > 1 else evaluation
             else:
                 # If format isn't followed, make an estimate

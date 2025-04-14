@@ -8,10 +8,11 @@ import traceback
 import warnings
 import logging
 import yaml
-import random
 from yaml.loader import SafeLoader
-
+import json
 from VTuberComponent.vtuber.__init__ import vtuber
+
+CONFIG_PATH = './Config/config.yaml'
 
 # Configure Streamlit page before any other Streamlit commands
 try:
@@ -36,21 +37,27 @@ os.environ['PYTORCH_DISABLE_CUSTOM_CLASS_REGISTRATION'] = '1'
 os.environ['TORCH_USE_RTLD_GLOBAL'] = 'YES'  # Help with some PyTorch dynamic loading issues
 os.environ['STREAMLIT_WATCH_MODULE_SKIP'] = 'torch,transformers,langchain,sentence_transformers,faiss'
 
+# Enable our debug logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 # Try to load authentication configuration
+
+# Three lines below it was originally     with open('config/config.yaml', 'r', encoding='utf-8') as file:
+
 try:
-    config_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'Config', 'config.yaml')
-    with open(config_path, 'r', encoding='utf-8') as file:
+    with open(CONFIG_PATH, 'r', encoding='utf-8') as file:
         config = yaml.load(file, Loader=SafeLoader)
 except FileNotFoundError:
-    st.error(f"Authentication configuration file 'config.yaml' not found at {config_path}. Please create it.")
-    st.stop()
+	st.error("Authentication configuration file 'config.yaml' not found. Please create it.")
+	st.stop()
 
 # Create authenticator object
 authenticator = stauth.Authenticate(
-    config['credentials'],
-    config['cookie']['name'],
-    config['cookie']['key'],
-    config['cookie']['expiry_days']
+	config['credentials'],
+	config['cookie']['name'],
+	config['cookie']['key'],
+	config['cookie']['expiry_days']
 )
 
 # Fix path to ensure models can be imported
@@ -76,6 +83,18 @@ except Exception as e:
 	# Stop the app if imports fail
 	st.stop()
 
+try:
+	from databases.chat_memory.chat_mem import (
+		retrieve_chats,
+		store_chat,
+		replace_chat, 
+		retrieve_conversations
+	)
+
+except Exception as e:
+	st.error(f"Failure importing chat memory scripts: {e}")
+	st.stop()
+
 # Function to safely execute code with error handling
 def safe_execute(func, *args, fallback_result=None, **kwargs):
 	"""Execute a function safely with comprehensive error handling."""
@@ -92,58 +111,142 @@ if 'page' not in st.session_state:
 
 # Login Page
 def LoginPage():
-    st.title("Teacher Trainer Simulator Login")
-    
-    # Login form
-    try:
-        authenticator.login()
-    except Exception as e:
-        st.error(f"Login error: {e}")
+	st.title("Teacher Trainer Simulator Login")
+	
+	# Login form
+	try:
+		authenticator.login()
+	except Exception as e:
+		st.error(f"Login error: {e}")
 
-    if st.session_state["authentication_status"] is False:
-        st.error('Username/password is incorrect')
-    
-    # Additional authentication options
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        # Password reset
-        try:
-            if st.button("Reset Password"):
-                username = st.text_input("Enter username to reset password")
-                if authenticator.reset_password(username):
-                    st.success('Password reset successfully')
-        except Exception as e:
-            st.error(f"Password reset error: {e}")
-    
-    with col2:
-        # Forgot password
-        try:
-            if st.button("Forgot Password"):
-                username = st.text_input("Enter username")
-                email = st.text_input("Enter email")
-                if authenticator.forgot_password(username):
-                    st.success('Password reset instructions sent')
-        except Exception as e:
-            st.error(f"Forgot password error: {e}")
-    
-    # Registration
-    if st.button("Register New Account"):
-        try:
-            (email, username, name) = authenticator.register_user()
-            if email:
-                st.success('User registered successfully')
-                # Save updated config
-                with open('config.yaml', 'w') as file:
-                    yaml.dump(config, file, default_flow_style=False)
-        except Exception as e:
-            st.error(f"Registration error: {e}")
+	if st.session_state["authentication_status"] is False:
+		st.error('Username/password is incorrect')
+	
+	# Additional authentication options
+	col1, col2 = st.columns(2)
+	
+	with col1:
+		# Password reset
+		try:
+			if st.button("Reset Password"):
+				username = st.text_input("Enter username to reset password")
+				if authenticator.reset_password(username):
+					st.success('Password reset successfully')
+		except Exception as e:
+			st.error(f"Password reset error: {e}")
+	
+	with col2:
+		# Forgot password
+		try:
+			if st.button("Forgot Password"):
+				username = st.text_input("Enter username")
+				email = st.text_input("Enter email")
+				if authenticator.forgot_password(username):
+					st.success('Password reset instructions sent')
+		except Exception as e:
+			st.error(f"Forgot password error: {e}")
+	
+	# Registration
+	#when RegisteringNewAccount is true the registration form will be visible
+	if "RegisteringNewAccount" not in st.session_state:
+		st.session_state["RegisteringNewAccount"] = False
+
+	#when the user clicks the register new account button toggle the visiblity of the form
+	if st.button("Register New Account"):
+		st.session_state["RegisteringNewAccount"] = not st.session_state["RegisteringNewAccount"]
+
+	if st.session_state["RegisteringNewAccount"]:
+		logger.info("Starting registration process...")
+		
+		# Create form
+		with st.form("registration_form"):
+			st.write("Please fill in your details")
+			new_username = st.text_input("Username", key="reg_username")
+			new_name = st.text_input("Name", key="reg_name")
+			new_email = st.text_input("Email", key="reg_email")
+			new_password = st.text_input("Password", type="password", key="reg_password")
+			new_password_repeat = st.text_input("Repeat Password", type="password", key="reg_password_repeat")
+			submit_button = st.form_submit_button("Register")
+
+		if submit_button:
+			st.session_state["RegisteringNewAccount"] = False#Hide form
+
+			logger.info("Form submitted")
+			logger.info(f"Form data - Username: {new_username}, Name: {new_name}, Email: {new_email}")
+			
+			if not new_username or not new_name or not new_email or not new_password:
+				st.error("Please fill in all fields!")
+				logger.error("Missing required fields in registration form")
+				return
+			
+			if new_password != new_password_repeat:
+				st.error("Passwords do not match!")
+				logger.error("Passwords do not match in registration form")
+				return
+			
+			# Add the new user to the config
+			if 'credentials' not in config:
+				config['credentials'] = {}
+			if 'usernames' not in config['credentials']:
+				config['credentials']['usernames'] = {}
+			
+			# Check if username already exists
+			if new_username in config['credentials']['usernames']:
+				st.error("Username already exists!")
+				logger.error(f"Username {new_username} already exists")
+				return
+			
+			# Hash the password
+			logger.info("Hashing password...")
+			hashed_password = stauth.Hasher().hash(new_password)
+ 
+			# Add the new user
+			config['credentials']['usernames'][new_username] = {
+				'name': new_name,
+				'email': new_email,
+				'password': hashed_password,
+				'logged_in': False
+			}
+			
+			logger.info("Updated config with new user")
+			logger.info(f"Config path: {CONFIG_PATH}")
+			
+			# Save the updated config
+			try:
+				logger.info("Attempting to save config file...")
+				with open(CONFIG_PATH, 'w') as file:
+					yaml.dump(config, file, default_flow_style=False)
+				logger.info("Config saved successfully")
+				st.success("Registration successful! Please try logging in.")
+			except Exception as e:
+				logger.error(f"Error saving config: {str(e)}")
+				st.error(f"Error saving registration: {str(e)}")
 
 def StartPage():
 	# Add logout to sidebar
 	with st.sidebar:
 		authenticator.logout()
 		st.write(f'Welcome, *{st.session_state["name"]}*')
+		st.write("Select A Previous Scenario")
+		
+		conversations = retrieve_chats(st.session_state["username"])
+		if conversations:
+			for id, conversation, g_level, subj, chal in conversations:
+				button_clicked = st.button(f"{chal.capitalize()} {g_level} in {subj}")	# FOR NOW JUST USE ID
+
+				if button_clicked:
+					st.session_state["subject"] = subj
+					st.session_state["gradeLevel"] = g_level
+					st.session_state["challenge"] = chal
+					st.session_state["page"] = "chat"
+					st.session_state["chat_id"] = id
+					st.session_state.messages = json.loads(conversation)
+					
+					# TODO: Insert the knowledge messages too (the teacher assistant )
+					st.rerun()
+		else:
+			st.write("No previous chats")
+
 
 	st.title("AI Classroom Simulator")
 	st.divider()
@@ -193,6 +296,7 @@ def ChatPage():
 
 		if "knowledgeMessages" not in st.session_state:
 			st.session_state.knowledgeMessages = [{"role": "assistant", "content": "Ask about teaching knowledge"}]
+			# TODO Add knowledge messages here
 
 		#display previous chat messages
 		for message in st.session_state["knowledgeMessages"]:
@@ -230,6 +334,8 @@ def ChatPage():
 				message_placeholder.markdown(full_response)
 			# Add assistant response to chat history
 			st.session_state["knowledgeMessages"].append({"role": "assistant", "content": full_response})
+			# TODO Add knowledge messages here
+
 
 	# Student chat interface
 	# Initialize chat history
@@ -250,6 +356,11 @@ def ChatPage():
 		
 		# Add the scenario as the first assistant message
 		st.session_state.messages.append({"role": "assistant", "content": f"**Classroom Scenario:**\n\n{scenario}\n\n*You are now interacting with a student. How would you respond as the teacher?*"})
+		
+		# Store the chat in the db and track the ID 
+		last_row_id = store_chat(st.session_state["username"], st.session_state.messages, st.session_state["gradeLevel"], st.session_state["subject"], st.session_state["challenge"])
+		st.session_state["chat_id"] = last_row_id
+
 
 	# Display chat messages from history on app rerun
 	for message in st.session_state["messages"]:
@@ -268,7 +379,6 @@ def ChatPage():
 		with st.chat_message("assistant"):
 			message_placeholder = st.empty()
 			full_response = ""
-			
 			with st.spinner("Generating response..."):
 				try:
 					# Pass the entire conversation history to get_student_response
@@ -279,6 +389,7 @@ def ChatPage():
 						st.session_state["challenge"],
 						prompt,
 						st.session_state["messages"],  # Pass the full conversation history
+						retrieve_conversations(st.session_state["username"], st.session_state["chat_id"]),
 						fallback_result="I'm having trouble responding right now."
 					)
 				except Exception as e:
@@ -294,17 +405,22 @@ def ChatPage():
 			message_placeholder.markdown(full_response)
 		# Add assistant response to chat history
 		st.session_state["messages"].append({"role": "assistant", "content": full_response})
-		#change animation of vTuber
+
+		# Update conversation in database
+		replace_chat(st.session_state["chat_id"], st.session_state["username"], st.session_state["messages"], st.session_state["gradeLevel"], st.session_state["subject"], st.session_state["challenge"])
+
+	  	#change animation of vTuber
 
 		count = 0
 		if "vTuberCounter" not in st.session_state:
-			st.session_state["vTuberCounter"] = 0
+			st.session_state["vTuberCounter"] = 1
 		else:
 			st.session_state["vTuberCounter"] += 1
 			if st.session_state["vTuberCounter"] > 5:
 				st.session_state["vTuberCounter"] = 0
 			count = st.session_state["vTuberCounter"]
 		st.session_state["vTuberAnimation"] = ["Happy","Sad","Angry","Idling","Disgust","Surprised"][count]
+
 
 def EvalPage():
 	st.title("Evaluation")
