@@ -12,7 +12,7 @@ from yaml.loader import SafeLoader
 import json
 from VTuberComponent.vtuber.__init__ import vtuber
 
-CONFIG_PATH = './Config/config.yaml'
+CONFIG_PATH = '../Config/config.yaml'
 
 # Configure Streamlit page before any other Streamlit commands
 try:
@@ -231,8 +231,9 @@ def StartPage():
 		
 		conversations = retrieve_chats(st.session_state["username"])
 		if conversations:
+			i = 1
 			for id, conversation, g_level, subj, chal in conversations:
-				button_clicked = st.button(f"{chal.capitalize()} {g_level} in {subj}")	# FOR NOW JUST USE ID
+				button_clicked = st.button(f"{i}: {chal.capitalize()} {g_level} student in {subj}")	# FOR NOW JUST USE ID
 
 				if button_clicked:
 					st.session_state["subject"] = subj
@@ -241,9 +242,12 @@ def StartPage():
 					st.session_state["page"] = "chat"
 					st.session_state["chat_id"] = id
 					st.session_state.messages = json.loads(conversation)
-					
+					if "vTuberAnimation" not in st.session_state:
+						st.session_state["vTuberAnimation"] = "Idling"
+
 					# TODO: Insert the knowledge messages too (the teacher assistant )
 					st.rerun()
+				i += 1
 		else:
 			st.write("No previous chats")
 
@@ -410,7 +414,6 @@ def ChatPage():
 		replace_chat(st.session_state["chat_id"], st.session_state["username"], st.session_state["messages"], st.session_state["gradeLevel"], st.session_state["subject"], st.session_state["challenge"])
 
 	  	#change animation of vTuber
-
 		count = 0
 		if "vTuberCounter" not in st.session_state:
 			st.session_state["vTuberCounter"] = 1
@@ -420,7 +423,10 @@ def ChatPage():
 				st.session_state["vTuberCounter"] = 0
 			count = st.session_state["vTuberCounter"]
 		st.session_state["vTuberAnimation"] = ["Happy","Sad","Angry","Idling","Disgust","Surprised"][count]
+		print(st.session_state["vTuberAnimation"])
 
+		# TODO I can store this in a database so it keeps the animation consistent when you leave and come back to animation
+		# I can move the replace_chat 15 lines up so down here and just add in a new parameter to replace_chats
 
 def EvalPage():
 	st.title("Evaluation")

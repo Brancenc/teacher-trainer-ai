@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS query_logs (
 
 '''
 
-db_path = "vector_db.sqlite"
+db_path = "vector_db.sqlite"    # Will most likely need to change this to path using os
 model = SentenceTransformer('all-MiniLM-L6-v2')
 
 class Connect:
