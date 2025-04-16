@@ -11,6 +11,7 @@ import yaml
 from yaml.loader import SafeLoader
 import json
 from VTuberComponent.vtuber.__init__ import vtuber
+import datetime
 
 CONFIG_PATH = './Config/config.yaml'
 
@@ -231,8 +232,10 @@ def StartPage():
 		
 		conversations = retrieve_chats(st.session_state["username"])
 		if conversations:
+			i = 1
 			for id, conversation, g_level, subj, chal in conversations:
-				button_clicked = st.button(f"{chal.capitalize()} {g_level} in {subj}")	# FOR NOW JUST USE ID
+				button_key = f"conversation: {i} id: {id}"
+				button_clicked = st.button(f"{i}: {chal.capitalize()} {g_level} student in {subj}", key=button_key)	# FOR NOW JUST USE ID
 
 				if button_clicked:
 					st.session_state["subject"] = subj
@@ -241,9 +244,12 @@ def StartPage():
 					st.session_state["page"] = "chat"
 					st.session_state["chat_id"] = id
 					st.session_state.messages = json.loads(conversation)
-					
-					# TODO: Insert the knowledge messages too (the teacher assistant )
+					if "vTuberAnimation" not in st.session_state:
+						st.session_state["vTuberAnimation"] = "Idling"
+
+				# TODO: Insert the knowledge messages too (the teacher assistant )
 					st.rerun()
+				i += 1
 		else:
 			st.write("No previous chats")
 
@@ -329,6 +335,7 @@ def ChatPage():
 						assistant_response = safe_execute(
 							get_knowledge_explorer_response,
 							prompt,
+							st.session_state["messages"],
 							fallback_result="I'm having trouble retrieving knowledge right now."
 						)
 					except Exception as e:
@@ -440,7 +447,10 @@ def ChatPage():
 				st.session_state["vTuberCounter"] = 0
 			count = st.session_state["vTuberCounter"]
 		st.session_state["vTuberAnimation"] = ["Happy","Sad","Angry","Idling","Disgust","Surprised"][count]
+		print(st.session_state["vTuberAnimation"])
 
+		# TODO I can store this in a database so it keeps the animation consistent when you leave and come back to animation
+		# I can move the replace_chat 15 lines up so down here and just add in a new parameter to replace_chats
 
 def EvalPage():
 	st.title("Evaluation")
