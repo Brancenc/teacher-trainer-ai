@@ -159,7 +159,7 @@ Build TeachVirt from source and install dependencies:
 Run the web interface with:
 
 ```sh
-python website/website.py
+streamlit run website/website.py
 ```
 
 Access the simulation platform through your browser at `http://localhost:8501`.
