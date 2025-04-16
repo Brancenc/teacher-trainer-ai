@@ -64,7 +64,7 @@ def retrieve_knowledge(query, top_k=3):
         cursor = conn.cursor()
 
         # Load text and embeddings
-        cursor.execute("SELECT c.id, c.text, e.vector FROM chunks c JOIN embeddings e ON c.id = e.chunk_id")
+        cursor.execute("SELECT c.id, c.text, e.vector FROM chunks c JOIN embeddings e ON c.id = e.chunk_id where id<17981")
         data = cursor.fetchall()
         
         if not data:
@@ -257,11 +257,14 @@ def get_student_response(grade_level, subject, challenge_type, teacher_message, 
         print(f"Error generating student response: {e}")
         return "Unable to generate student response. Please try again."
 
-def get_knowledge_explorer_response(query):
+def get_knowledge_explorer_response(query,convo):
     """Generate a response about teaching concepts based on the knowledge base."""
     try:
+        print(f"{convo}************************************************************************************************")
         # Retrieve relevant knowledge from the database
-        knowledge = retrieve_knowledge(query, top_k=5)
+        unpacked_convo = "\n".join([f"role: {item['role']}, content: {item['content']}" for item in convo])
+        knowledge = retrieve_knowledge(unpacked_convo, top_k=5)
+        print(f"Knowledge: {knowledge}++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
         
         if not knowledge:
             return "I don't have specific information about that in my knowledge base. Could you try asking something related to classroom management or teaching approaches?"
@@ -271,6 +274,8 @@ def get_knowledge_explorer_response(query):
         The user has asked: "{query}"
         
         Based on the following knowledge, provide a helpful response:
+        Situation: {convo}
+        Knowledge Base:
         {knowledge}
         
         Format your response in a clear, concise way that directly addresses the user's query.

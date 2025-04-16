@@ -335,6 +335,7 @@ def ChatPage():
 						assistant_response = safe_execute(
 							get_knowledge_explorer_response,
 							prompt,
+							st.session_state["messages"],
 							fallback_result="I'm having trouble retrieving knowledge right now."
 						)
 					except Exception as e:
