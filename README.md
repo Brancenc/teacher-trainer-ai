@@ -75,11 +75,25 @@ Educational institutions need cost-effective and scalable ways to train teachers
 
 ```sh
 └── teacher-trainer-ai/
+    ├── Config/
+    │   └── config.yaml
+    ├── Meeting_Minutes/
+    │   ├── Feb-02-2025.txt
+    │   ├── Feb-05-2025.txt
+    │   ├── Feb-06-2025.txt
+    │   ├── Feb-10-2025.txt
+    │   ├── Feb-20-2025.txt
+    │   ├── Feb-27-2025.txt
+    │   ├── Jan-30-2025.txt
+    │   ├── Mar-19-2025.txt
+    │   └── Mar-27-2025.txt
     ├── databases/
     │   └── vector/
-    │       ├── cache.json
     │       ├── connect.py
     │       └── vector_dv.sqlite
+        └── chat_memory/
+    │       ├── chat_mem.py
+    │       └── chat_memory.sqlite
     ├── models/
     │   ├── llm_handler.py
     │   └── ollama_finetune.py
