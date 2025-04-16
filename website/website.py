@@ -11,6 +11,7 @@ import yaml
 from yaml.loader import SafeLoader
 import json
 from VTuberComponent.vtuber.__init__ import vtuber
+import datetime
 
 CONFIG_PATH = './Config/config.yaml'
 
@@ -233,7 +234,8 @@ def StartPage():
 		if conversations:
 			i = 1
 			for id, conversation, g_level, subj, chal in conversations:
-				button_clicked = st.button(f"{i}: {chal.capitalize()} {g_level} student in {subj}")	# FOR NOW JUST USE ID
+				button_key = f"conversation: {i} id: {id}"
+				button_clicked = st.button(f"{i}: {chal.capitalize()} {g_level} student in {subj}", key=button_key)	# FOR NOW JUST USE ID
 
 				if button_clicked:
 					st.session_state["subject"] = subj
@@ -247,6 +249,7 @@ def StartPage():
 
 				# TODO: Insert the knowledge messages too (the teacher assistant )
 					st.rerun()
+				i += 1
 		else:
 			st.write("No previous chats")
 
