@@ -11,6 +11,7 @@ import yaml
 from yaml.loader import SafeLoader
 import json
 from VTuberComponent.vtuber.__init__ import vtuber
+import datetime
 
 CONFIG_PATH = './Config/config.yaml'
 
@@ -231,8 +232,10 @@ def StartPage():
 		
 		conversations = retrieve_chats(st.session_state["username"])
 		if conversations:
+			i = 1
 			for id, conversation, g_level, subj, chal in conversations:
-				button_clicked = st.button(f"{chal.capitalize()} {g_level} in {subj}")	# FOR NOW JUST USE ID
+				button_key = f"conversation: {i} id: {id}"
+				button_clicked = st.button(f"{i}: {chal.capitalize()} {g_level} student in {subj}", key=button_key)	# FOR NOW JUST USE ID
 
 				if button_clicked:
 					st.session_state["subject"] = subj
@@ -241,9 +244,12 @@ def StartPage():
 					st.session_state["page"] = "chat"
 					st.session_state["chat_id"] = id
 					st.session_state.messages = json.loads(conversation)
-					
-					# TODO: Insert the knowledge messages too (the teacher assistant )
+					if "vTuberAnimation" not in st.session_state:
+						st.session_state["vTuberAnimation"] = "Idling"
+
+				# TODO: Insert the knowledge messages too (the teacher assistant )
 					st.rerun()
+				i += 1
 		else:
 			st.write("No previous chats")
 
@@ -251,19 +257,27 @@ def StartPage():
 	st.title("AI Classroom Simulator")
 	st.divider()
 
-	selectedGrade = st.selectbox("Grade Level",
-	options=["Kindergarten","Grade 1","Grade 2","Grade 3","Grade 4","Grade 5"],
-	index=2)
-
+	# If keeping same student, use stored grade and challenge
+	if st.session_state.get('keep_student', False):
+		selectedGrade = st.session_state.get("previous_grade")
+		st.write(f"Grade Level: {selectedGrade}")  # Display as text since we're keeping the same student
+	else:
+		selectedGrade = st.selectbox("Grade Level",
+		options=["Kindergarten","Grade 1","Grade 2","Grade 3","Grade 4","Grade 5"],
+		index=2)
 	selectedSubject = st.selectbox("Subject",
 	options=["English","Math","Science"],
 	index=0,
 	placeholder="Select situation...")
 
-	selectedChallengeType = st.selectbox("Challenge",
-	options=["disruptive","fidgeting", "distracted", "frustrated", "confused", "engaged"],
-	placeholder="Select challenge")
-
+	# If keeping same student, use stored challenge
+	if st.session_state.get('keep_student', False):
+		selectedChallengeType = st.session_state.get("previous_challenge")
+		st.write(f"Challenge: {selectedChallengeType}")  # Display as text since we're keeping the same student
+	else:
+		selectedChallengeType = st.selectbox("Challenge",
+		options=["disruptive","fidgeting", "distracted", "frustrated", "confused", "engaged"],
+		placeholder="Select challenge")
 	st.session_state["subject"] = selectedSubject
 	st.session_state["gradeLevel"] = selectedGrade
 	st.session_state["challenge"] = selectedChallengeType
@@ -271,8 +285,9 @@ def StartPage():
 	if st.button("Start"):
 		#go to chat page
 		st.session_state['page'] = 'chat'
-		#wipe messages in current session
-		st.session_state.messages = []  # Start with empty messages
+		#wipe messages in current session if not keeping the same student
+		if not st.session_state.get('keep_student', False):
+			st.session_state.messages = []
 		st.session_state["vTuberAnimation"] = "Idling"
 		st.rerun()
 
@@ -320,6 +335,7 @@ def ChatPage():
 						assistant_response = safe_execute(
 							get_knowledge_explorer_response,
 							prompt,
+							st.session_state["messages"],
 							fallback_result="I'm having trouble retrieving knowledge right now."
 						)
 					except Exception as e:
@@ -346,13 +362,24 @@ def ChatPage():
 	if len(st.session_state.messages) == 0:
 		# Generate the scenario
 		with st.spinner("Generating scenario..."):
+			# Check if we should keep the same student
+			previous_scenario = st.session_state.get('previous_scenario', None) if st.session_state.get('keep_student', False) else None
+			keep_student = st.session_state.get('keep_student', False)
+			
 			scenario = safe_execute(
 				generate_scenario,
 				st.session_state["gradeLevel"],
 				st.session_state["subject"],
 				st.session_state["challenge"],
+				previous_scenario,
+				keep_student,
+				st.session_state.get("name", None),  # Pass the teacher's name
 				fallback_result="A student in your class is having difficulty focusing on the task."
 			)
+			
+			# Clear the keep_student flag after use
+			st.session_state['keep_student'] = False
+			st.session_state['previous_scenario'] = None
 		
 		# Add the scenario as the first assistant message
 		st.session_state.messages.append({"role": "assistant", "content": f"**Classroom Scenario:**\n\n{scenario}\n\n*You are now interacting with a student. How would you respond as the teacher?*"})
@@ -420,7 +447,10 @@ def ChatPage():
 				st.session_state["vTuberCounter"] = 0
 			count = st.session_state["vTuberCounter"]
 		st.session_state["vTuberAnimation"] = ["Happy","Sad","Angry","Idling","Disgust","Surprised"][count]
+		print(st.session_state["vTuberAnimation"])
 
+		# TODO I can store this in a database so it keeps the animation consistent when you leave and come back to animation
+		# I can move the replace_chat 15 lines up so down here and just add in a new parameter to replace_chats
 
 def EvalPage():
 	st.title("Evaluation")
@@ -469,8 +499,9 @@ def EvalPage():
 				role = "👨‍🏫 Teacher" if message["role"] == "user" else "👨‍🎓 Student"
 				st.markdown(f"**{role}**: {message['content']}")
 
-	col1, col2 = st.columns(2)
-	
+	# Create three columns for the buttons
+	col1, col2, col3 = st.columns(3)
+
 	with col1:
 		if st.button("Go Back to Situation Select"):
 			# Go back to home page
@@ -481,6 +512,34 @@ def EvalPage():
 		if st.button("Continue Conversation"):
 			# Go back to chat page
 			st.session_state['page'] = 'chat'
+			st.rerun()
+	
+	with col2:
+		if st.button("New Scenario"):
+			# Store that we want a completely new scenario
+			st.session_state['keep_student'] = False
+			# Go back to home page
+			st.session_state['page'] = 'home'
+			# Clear messages for new scenario
+			st.session_state.messages = []
+			st.rerun()
+	
+	with col3:
+		if st.button("New Scenario (Same Student)"):
+			# Extract student info from first message if available
+			if len(st.session_state["messages"]) > 0:
+				first_msg = st.session_state["messages"][0]
+				scenario_text = first_msg.get("content", "")
+				# Store the scenario text to extract student info later
+				st.session_state['previous_scenario'] = scenario_text
+				# Store the current grade and challenge
+				st.session_state['previous_grade'] = st.session_state["gradeLevel"]
+				st.session_state['previous_challenge'] = st.session_state["challenge"]
+				st.session_state['keep_student'] = True
+			# Go back to home page
+			st.session_state['page'] = 'home'
+			# Clear messages for new scenario
+			st.session_state.messages = []
 			st.rerun()
 
 # Wrap the main app in a try-except block to catch any errors

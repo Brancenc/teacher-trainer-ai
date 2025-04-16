@@ -64,7 +64,7 @@ def retrieve_knowledge(query, top_k=3):
         cursor = conn.cursor()
 
         # Load text and embeddings
-        cursor.execute("SELECT c.id, c.text, e.vector FROM chunks c JOIN embeddings e ON c.id = e.chunk_id")
+        cursor.execute("SELECT c.id, c.text, e.vector FROM chunks c JOIN embeddings e ON c.id = e.chunk_id where id<17981")
         data = cursor.fetchall()
         
         if not data:
@@ -95,17 +95,44 @@ def retrieve_knowledge(query, top_k=3):
         print(f"Error retrieving knowledge: {e}")
         return [f"Error retrieving knowledge: {str(e)}"]
 
-def generate_scenario(grade_level, subject, challenge_type):
+def generate_scenario(grade_level, subject, challenge_type, previous_scenario=None, keep_student=False, teacher_name=None):
     """Generate a classroom management scenario based on grade, subject, and challenge."""
     try:
-        # Create a prompt for scenario generation
-        prompt = f"""
-        Generate a classroom scenario for a {grade_level} {subject} class where a student has a {challenge_type} challenge.
-        Describe the situation from a third-person perspective.
-        DO NOT include any teacher responses or evaluations.
-        Just describe the classroom situation that the teacher needs to respond to.
-        Keep it brief (2-3 sentences).
-        """
+        # Add teacher prefix based on name
+        if teacher_name:
+            name_parts = teacher_name.split()
+            # Use last name if multiple names are provided, otherwise use the only name
+            used_name = name_parts[-1] if len(name_parts) > 1 else name_parts[0]
+            teacher_prefix = "Mr." if "Mr." in teacher_name or "Mr" in teacher_name else "Ms."
+            teacher_full = f"{teacher_prefix} {used_name}"
+        else:
+            teacher_full = "the teacher"
+
+        # If we want to keep the same student and have a previous scenario
+        if keep_student and previous_scenario:
+            # Create a prompt that keeps the same student but changes the situation
+            prompt = f"""
+            Using the following previous scenario as context:
+            {previous_scenario}
+            
+            Generate a NEW classroom scenario for the SAME student in {teacher_full}'s {grade_level} {subject} class where they now have a {challenge_type} challenge.
+            Keep the student's name and personality traits consistent, but create an entirely new situation.
+            Describe the situation from a third-person perspective.
+            DO NOT include any teacher responses or evaluations.
+            Just describe the classroom situation that {teacher_full} needs to respond to.
+            Keep it brief (2-3 sentences).
+            Use {teacher_full} when referring to the teacher.
+            """
+        else:
+            # Create a prompt for a completely new scenario
+            prompt = f"""
+            Generate a classroom scenario for {teacher_full}'s {grade_level} {subject} class where a student has a {challenge_type} challenge.
+            Describe the situation from a third-person perspective.
+            DO NOT include any teacher responses or evaluations.
+            Just describe the classroom situation that {teacher_full} needs to respond to.
+            Keep it brief (2-3 sentences).
+            Use {teacher_full} when referring to the teacher.
+            """
 
         # Generate the scenario
         return simple_generate(prompt)
@@ -230,11 +257,14 @@ def get_student_response(grade_level, subject, challenge_type, teacher_message, 
         print(f"Error generating student response: {e}")
         return "Unable to generate student response. Please try again."
 
-def get_knowledge_explorer_response(query):
+def get_knowledge_explorer_response(query,convo):
     """Generate a response about teaching concepts based on the knowledge base."""
     try:
+        print(f"{convo}************************************************************************************************")
         # Retrieve relevant knowledge from the database
-        knowledge = retrieve_knowledge(query, top_k=5)
+        unpacked_convo = "\n".join([f"role: {item['role']}, content: {item['content']}" for item in convo])
+        knowledge = retrieve_knowledge(unpacked_convo, top_k=5)
+        print(f"Knowledge: {knowledge}++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
         
         if not knowledge:
             return "I don't have specific information about that in my knowledge base. Could you try asking something related to classroom management or teaching approaches?"
@@ -244,6 +274,8 @@ def get_knowledge_explorer_response(query):
         The user has asked: "{query}"
         
         Based on the following knowledge, provide a helpful response:
+        Situation: {convo}
+        Knowledge Base:
         {knowledge}
         
         Format your response in a clear, concise way that directly addresses the user's query.

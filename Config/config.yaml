@@ -33,11 +33,26 @@ credentials:
       password: $2b$12$SxD/z1xJN6C7G7ygeiCuDOR88ZFAMoky9nCm9JgACEuJiVbVV6/4a
       roles:
       - viewer
+    stratkay:
+      email: 10849534@uvu.edu
+      logged_in: false
+      name: Kaytlin S
+      password: $2b$12$iLXrpUdLtxmA3eo2o65lMuGWBP5Y8rFgedlGEoqVzct3YQwpmOGDC
     test2:
       email: null2@null.null
       logged_in: false
       name: test two
       password: $2b$12$A8pndoG9MW5ZsFMTz5i4i.MyzQlm2g13RArDL1Dvi.UK9P9BC6xdi
+    test3:
+      email: null3@null.null
+      logged_in: false
+      name: test three
+      password: $2b$12$L0Kv7KFvVi.7dxG0m7AIm.GthPDpYG1vZtY5CV89XvZiep9njTYMi
+    test4:
+      email: null4@null.null
+      logged_in: false
+      name: test four
+      password: $2b$12$ubzv7JkE5qYJ8TYGEqq/7uu.mVjGvVv9zn2DeYOnJge/uOYdtnCXK
 oauth2:
   google:
     client_id: null

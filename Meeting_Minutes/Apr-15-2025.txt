@@ -1,0 +1,14 @@
+thouroughly tested the program and listed all bugs that could be found including the following
+    knowledge explorer not pulling from chat or kb
+    two buttons same labeling breaks selection page
+    knowledge explorer not clearing for new chat with same student
+    knowledge explorer not saving
+    database after 17980 wrong length
+    forgot password not working
+    cookie breaks home page
+
+They are listed in order of severity
+
+We did a mob programming session and took care of the first 2 items on the list.
+Discussed what branches are current
+Discussed possibility of dong another mob programming session later in the evening
