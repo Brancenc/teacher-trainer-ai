@@ -164,14 +164,6 @@ streamlit run website/website.py
 
 Access the simulation platform through your browser at `http://localhost:8501`.
 
-### Testing
-
-Run the test suite with:
-
-```sh
-python -m unittest discover tests
-```
-
 ---
 
 ## Roadmap
