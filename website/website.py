@@ -13,7 +13,7 @@ import json
 from VTuberComponent.vtuber.__init__ import vtuber
 import datetime
 
-CONFIG_PATH = './Config/config.yaml'
+CONFIG_PATH = '../Config/config.yaml'
 
 # Configure Streamlit page before any other Streamlit commands
 try:
@@ -233,7 +233,7 @@ def StartPage():
 		conversations = retrieve_chats(st.session_state["username"])
 		if conversations:
 			i = 1
-			for id, conversation, g_level, subj, chal in conversations:
+			for id, conversation, g_level, subj, chal, km in conversations:
 				button_key = f"conversation: {i} id: {id}"
 				button_clicked = st.button(f"{i}: {chal.capitalize()} {g_level} student in {subj}", key=button_key)	# FOR NOW JUST USE ID
 
@@ -247,7 +247,7 @@ def StartPage():
 					if "vTuberAnimation" not in st.session_state:
 						st.session_state["vTuberAnimation"] = "Idling"
 
-				# TODO: Insert the knowledge messages too (the teacher assistant )
+					st.session_state["knowledgeMessages"] = json.loads(km)
 					st.rerun()
 				i += 1
 		else:
@@ -288,6 +288,7 @@ def StartPage():
 		#wipe messages in current session if not keeping the same student
 		if not st.session_state.get('keep_student', False):
 			st.session_state.messages = []
+			st.session_state.knowledgeMessages = []
 		st.session_state["vTuberAnimation"] = "Idling"
 		st.rerun()
 
@@ -311,7 +312,12 @@ def ChatPage():
 
 		if "knowledgeMessages" not in st.session_state:
 			st.session_state.knowledgeMessages = [{"role": "assistant", "content": "Ask about teaching knowledge"}]
-			# TODO Add knowledge messages here
+			
+			# TODO Store chat in db and add 
+			# print("Before call")
+			# last_row_id = store_chat(st.session_state["username"], st.session_state["messages"], st.session_state["gradeLevel"], st.session_state["subject"], st.session_state["challenge"], st.session_state["knowledgeMessages"])
+			# st.session_state["chat_id"] = last_row_id
+			# print("AFter call")
 
 		#display previous chat messages
 		for message in st.session_state["knowledgeMessages"]:
@@ -351,6 +357,9 @@ def ChatPage():
 			# Add assistant response to chat history
 			st.session_state["knowledgeMessages"].append({"role": "assistant", "content": full_response})
 			# TODO Add knowledge messages here
+			# Update km chat in db
+			replace_chat(st.session_state["chat_id"], st.session_state["username"], st.session_state["messages"], st.session_state["gradeLevel"], st.session_state["subject"], st.session_state["challenge"], st.session_state["knowledgeMessages"])
+
 
 
 	# Student chat interface
@@ -384,9 +393,10 @@ def ChatPage():
 		# Add the scenario as the first assistant message
 		st.session_state.messages.append({"role": "assistant", "content": f"**Classroom Scenario:**\n\n{scenario}\n\n*You are now interacting with a student. How would you respond as the teacher?*"})
 		
-		# Store the chat in the db and track the ID 
-		last_row_id = store_chat(st.session_state["username"], st.session_state.messages, st.session_state["gradeLevel"], st.session_state["subject"], st.session_state["challenge"])
+		# Update chat in db
+		last_row_id = store_chat(st.session_state["username"], st.session_state.messages, st.session_state["gradeLevel"], st.session_state["subject"], st.session_state["challenge"], st.session_state["knowledgeMessages"])
 		st.session_state["chat_id"] = last_row_id
+		# replace_chat(st.session_state["chat_id"], st.session_state["username"], st.session_state.messages, st.session_state["gradeLevel"], st.session_state["subject"], st.session_state["challenge"], st.session_state["knowledgeMessages"])
 
 
 	# Display chat messages from history on app rerun
@@ -434,7 +444,7 @@ def ChatPage():
 		st.session_state["messages"].append({"role": "assistant", "content": full_response})
 
 		# Update conversation in database
-		replace_chat(st.session_state["chat_id"], st.session_state["username"], st.session_state["messages"], st.session_state["gradeLevel"], st.session_state["subject"], st.session_state["challenge"])
+		replace_chat(st.session_state["chat_id"], st.session_state["username"], st.session_state["messages"], st.session_state["gradeLevel"], st.session_state["subject"], st.session_state["challenge"], st.session_state["knowledgeMessages"])
 
 	  	#change animation of vTuber
 
@@ -449,8 +459,6 @@ def ChatPage():
 		st.session_state["vTuberAnimation"] = ["Happy","Sad","Angry","Idling","Disgust","Surprised"][count]
 		print(st.session_state["vTuberAnimation"])
 
-		# TODO I can store this in a database so it keeps the animation consistent when you leave and come back to animation
-		# I can move the replace_chat 15 lines up so down here and just add in a new parameter to replace_chats
 
 def EvalPage():
 	st.title("Evaluation")
@@ -540,6 +548,8 @@ def EvalPage():
 			st.session_state['page'] = 'home'
 			# Clear messages for new scenario
 			st.session_state.messages = []
+			# Clear knowledge exploror messages for new scenario
+			st.session_state.knoledgeMessages = []
 			st.rerun()
 
 # Wrap the main app in a try-except block to catch any errors

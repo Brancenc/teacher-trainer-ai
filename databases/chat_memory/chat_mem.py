@@ -48,14 +48,15 @@ def create_table():
                 conversations TEXT,
                 grade_level TEXT,
                 subject TEXT,
-                challenge TEXT
+                challenge TEXT,
+                knowledge_messages TEXT
             )    
         ''')
         conn.commit()
 
 def retrieve_chats(username, idd = None):
     query = '''
-        SELECT id, conversations, grade_level, subject, challenge
+        SELECT id, conversations, grade_level, subject, challenge, knowledge_messages
         FROM chat_sessions
         WHERE username = ?
     '''
@@ -103,15 +104,18 @@ def retrieve_conversations(username, id):
         print(f"Unexpected error: {e}")
         return None
         
-def store_chat(username, chat, g_level="2nd", subj="math", chal="disruptive"):
+def store_chat(username, chat, g_level="2nd", subj="math", chal="disruptive", knowledge_messages=None):
     try:
         chat_json = json.dumps(chat)
+        knowledge_messages_json = json.dumps(knowledge_messages)
+        print(f"chat_json: {chat_json}")
+        print(f"knowledge_messages_json: {knowledge_messages}")
         with sqlite3.connect(db_path, timeout=5.0) as conn:
             cursor = conn.cursor()
             cursor.execute('''
-                INSERT INTO chat_sessions (username, conversations, grade_level, subject, challenge)
-                VALUES (?, ?, ?, ?, ?)
-            ''', (username, chat_json, g_level, subj, chal))
+                INSERT INTO chat_sessions (username, conversations, grade_level, subject, challenge, knowledge_messages)
+                VALUES (?, ?, ?, ?, ?, ?)
+            ''', (username, chat_json, g_level, subj, chal, knowledge_messages_json))
             conn.commit()
             return cursor.lastrowid
     except sqlite3.Error as e:
@@ -121,15 +125,16 @@ def store_chat(username, chat, g_level="2nd", subj="math", chal="disruptive"):
         print(f"Unexpected error: {e}")
         return None
 
-def replace_chat(id, username, new_chat, gl, subj, chal):
+def replace_chat(id, username, new_chat, gl, subj, chal, km):
     try:
         chat_json = json.dumps(new_chat)
+        knowledge_json = json.dumps(km)
         with sqlite3.connect(db_path, timeout=5.0) as conn:
             cursor = conn.cursor()
             cursor.execute('''
-                REPLACE INTO chat_sessions (id, username, conversations, grade_level, subject, challenge)   
-                VALUES (?, ?, ?, ?, ?, ?)
-            ''', (id, username, chat_json, gl, subj, chal))
+                REPLACE INTO chat_sessions (id, username, conversations, grade_level, subject, challenge, knowledge_messages)   
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ''', (id, username, chat_json, gl, subj, chal, knowledge_json))
             conn.commit()
     except sqlite3.Error as e:
         print(f"Database error: {e}")
@@ -158,8 +163,7 @@ def view_table():
                 # print(type(content))
 
 def main():
-    pass
-    #create_table()
+    create_table()
     # username = "brancenc"
 
 
